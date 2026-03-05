@@ -70,13 +70,3 @@ jobs:
 
       - name: Build benchmarks (compile verification)
         run: dotnet build samples/Mapo.Benchmarks/ --configuration Release --no-restore
-
-      - name: Pack NuGet (verification)
-        run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj --configuration Release --no-restore --output ./artifacts
-
-      - name: Upload NuGet package
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-package
-          path: ./artifacts/*.nupkg
-          retention-days: 7
