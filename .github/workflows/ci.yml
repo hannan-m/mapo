@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Mapo.slnx
+
+    - name: Build Solution
+      run: dotnet build Mapo.slnx --configuration Release --no-restore
+
+    - name: Run Unit Tests
+      run: dotnet test tests/Mapo.Generator.Tests/Mapo.Generator.Tests.csproj --configuration Release --no-build --verbosity normal
+
+    - name: Run Integration Tests
+      run: dotnet test tests/Mapo.IntegrationTests/Mapo.IntegrationTests.csproj --configuration Release --no-build --verbosity normal
+
+    - name: Run Benchmark Verification
+      # We just compile the benchmarks to ensure the generator isn't producing invalid code for complex scenarios.
+      # We don't run the actual benchmarks in CI as it takes too long and fluctuates.
+      run: dotnet build samples/Mapo.Benchmarks/Mapo.Benchmarks.csproj --configuration Release

@@ -1,0 +1,44 @@
+name: Publish to NuGet
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger only on version tags, e.g., v1.0.0, v1.0.1-beta
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Extract Version from Tag
+      id: get_version
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        VERSION=${TAG_NAME#v}
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Extracted version: $VERSION"
+
+    - name: Restore dependencies
+      run: dotnet restore src/Mapo.Generator/Mapo.Generator.csproj
+
+    - name: Pack Mapo.Generator (Single Package)
+      # The .csproj is already configured to pack both the Analyzer and the Attributes DLL into one package
+      run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
+
+    - name: Push to NuGet
+      # Requires a GitHub Secret named NUGET_API_KEY containing your NuGet.org API Key
+      run: dotnet nuget push ./artifacts/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ env.VERSION }}
+        files: ./artifacts/*.nupkg
+        generate_release_notes: true
