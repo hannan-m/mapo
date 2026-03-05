@@ -11,8 +11,8 @@
     <Authors>Mapo Contributors</Authors>
     <PackageTags>mapper;source-generator;roslyn;mapping;object-mapping;aot</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/mapo-mapper/mapo</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mapo-mapper/mapo</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/hannan-m/mapo</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/hannan-m/mapo</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

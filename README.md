@@ -1,6 +1,6 @@
 # Mapo
 
-[![CI](https://github.com/mapo-mapper/mapo/actions/workflows/ci.yml/badge.svg)](https://github.com/mapo-mapper/mapo/actions/workflows/ci.yml)
+[![CI](https://github.com/hannan-m/mapo/actions/workflows/ci.yml/badge.svg)](https://github.com/hannan-m/mapo/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/Mapo.svg)](https://www.nuget.org/packages/Mapo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
