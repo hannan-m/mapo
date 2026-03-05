@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- We don't necessarily need project references to the samples, 
+         as we'll be running them as external processes. 
+         But we want them built before tests run. -->
+    <ProjectReference Include="..\..\samples\Mapo.Sample\Mapo.Sample.csproj" />
+    <ProjectReference Include="..\..\samples\Mapo.Circular\Mapo.Circular.csproj" />
+    <ProjectReference Include="..\..\samples\Mapo.Polymorphic\Mapo.Polymorphic.csproj" />
+    <ProjectReference Include="..\..\samples\Mapo.Aot\Mapo.Aot.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Mapo.Attributes\Mapo.Attributes.csproj" />
+    <ProjectReference Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>
