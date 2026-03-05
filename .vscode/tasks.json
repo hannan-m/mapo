@@ -1,0 +1,73 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/Mapo.slnx", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Mapo.Sample",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/samples/Mapo.Sample/Mapo.Sample.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Mapo.Circular",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/samples/Mapo.Circular/Mapo.Circular.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Mapo.Polymorphic",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/samples/Mapo.Polymorphic/Mapo.Polymorphic.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Mapo.Aot",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/samples/Mapo.Aot/Mapo.Aot.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Mapo.Benchmarks",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/samples/Mapo.Benchmarks/Mapo.Benchmarks.csproj", "-c", "Release", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Mapo.Cli",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/tools/Mapo.Cli/Mapo.Cli.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test unit",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/tests/Mapo.Generator.Tests/Mapo.Generator.Tests.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test integration",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/tests/Mapo.IntegrationTests/Mapo.IntegrationTests.csproj", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test all",
+      "dependsOn": ["test unit", "test integration"],
+      "problemMatcher": []
+    }
+  ]
+}

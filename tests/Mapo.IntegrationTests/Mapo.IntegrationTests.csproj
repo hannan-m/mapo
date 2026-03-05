@@ -23,7 +23,10 @@
          But we want them built before tests run. -->
     <ProjectReference Include="..\..\samples\Mapo.Sample\Mapo.Sample.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\samples\Mapo.Circular\Mapo.Circular.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\..\samples\Mapo.Polymorphic\Mapo.Polymorphic.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference
+      Include="..\..\samples\Mapo.Polymorphic\Mapo.Polymorphic.csproj"
+      ReferenceOutputAssembly="false"
+    />
     <ProjectReference Include="..\..\samples\Mapo.Aot\Mapo.Aot.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

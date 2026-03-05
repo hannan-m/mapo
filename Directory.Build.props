@@ -14,4 +14,13 @@
     <!-- Build Output -->
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+
+  <!-- Configure git hooks on first build -->
+  <Target Name="SetupGitHooks" BeforeTargets="Restore" Condition="Exists('$(MSBuildThisFileDirectory).git')">
+    <Exec
+      Command="git config core.hooksPath .githooks"
+      WorkingDirectory="$(MSBuildThisFileDirectory)"
+      IgnoreExitCode="true"
+    />
+  </Target>
 </Project>

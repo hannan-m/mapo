@@ -3,13 +3,12 @@
 Generated/
 GeneratedMappers/
 .idea/
-.run/
-.vscode/
 .DS_Store
 *.nupkg
 *.suo
 *.user
 BenchmarkDotNet.Artifacts/
+tmp/
 
 # AI agent config
 CLAUDE.md

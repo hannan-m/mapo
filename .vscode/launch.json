@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Mapo.Sample",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build Mapo.Sample",
+      "program": "${workspaceFolder}/samples/Mapo.Sample/bin/Debug/net10.0/Mapo.Sample.dll",
+      "cwd": "${workspaceFolder}/samples/Mapo.Sample",
+      "console": "internalConsole"
+    },
+    {
+      "name": "Mapo.Circular",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build Mapo.Circular",
+      "program": "${workspaceFolder}/samples/Mapo.Circular/bin/Debug/net10.0/Mapo.Circular.dll",
+      "cwd": "${workspaceFolder}/samples/Mapo.Circular",
+      "console": "internalConsole"
+    },
+    {
+      "name": "Mapo.Polymorphic",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build Mapo.Polymorphic",
+      "program": "${workspaceFolder}/samples/Mapo.Polymorphic/bin/Debug/net10.0/Mapo.Polymorphic.dll",
+      "cwd": "${workspaceFolder}/samples/Mapo.Polymorphic",
+      "console": "internalConsole"
+    },
+    {
+      "name": "Mapo.Aot",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build Mapo.Aot",
+      "program": "${workspaceFolder}/samples/Mapo.Aot/bin/Debug/net10.0/Mapo.Aot.dll",
+      "cwd": "${workspaceFolder}/samples/Mapo.Aot",
+      "console": "internalConsole"
+    },
+    {
+      "name": "Mapo.Benchmarks",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build Mapo.Benchmarks",
+      "program": "${workspaceFolder}/samples/Mapo.Benchmarks/bin/Release/net10.0/Mapo.Benchmarks.dll",
+      "args": ["--filter", "*"],
+      "cwd": "${workspaceFolder}/samples/Mapo.Benchmarks",
+      "console": "internalConsole"
+    },
+    {
+      "name": "Mapo.Cli",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build Mapo.Cli",
+      "program": "${workspaceFolder}/tools/Mapo.Cli/bin/Debug/net10.0/Mapo.Cli.dll",
+      "args": ["gen", "${workspaceFolder}/samples/Mapo.Sample", "${workspaceFolder}/tmp"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole"
+    }
+  ]
+}
