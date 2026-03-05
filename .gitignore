@@ -1,0 +1,22 @@
+[Bb]in/
+[Oo]bj/
+Generated/
+GeneratedMappers/
+.idea/
+.run/
+.vscode/
+.DS_Store
+*.nupkg
+*.suo
+*.user
+BenchmarkDotNet.Artifacts/
+
+# AI agent config
+CLAUDE.md
+.claude/
+.cursor/
+.copilot/
+.github/copilot/
+.aider*
+.gemini/
+.chatgpt/
