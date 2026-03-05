@@ -8,6 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapo" Version="1.0.0" />
+    <PackageReference Include="Mapo" Version="1.0.1" />
   </ItemGroup>
 </Project>
