@@ -71,6 +71,13 @@ internal static class ExpressionEmitter
 
                 int start = match.Index;
                 int openParen = result.IndexOf('(', start);
+                if (openParen == -1)
+                {
+                    lastSearchIndex = start + match.Length;
+                    if (lastSearchIndex >= result.Length)
+                        break;
+                    continue;
+                }
                 int closeParen = FindClosingParen(result, openParen);
 
                 if (closeParen != -1)
