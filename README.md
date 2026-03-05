@@ -142,7 +142,22 @@ The generated code handles null-safety (`Category?.Name ?? default`), selects th
 | [Architecture](docs/ARCHITECTURE.md) | Internal design: parse, analyze, emit pipeline |
 | [Benchmarks](docs/BENCHMARKS.md) | Detailed performance methodology and results |
 | [Comparison](docs/COMPARISON.md) | Mapo vs AutoMapper, Mapperly, and Mapster |
+| [CLI Tool](tools/Mapo.Cli/README.md) | Standalone code generation CLI |
 | [Changelog](CHANGELOG.md) | Release history |
+
+---
+
+## CLI Tool
+
+For use outside the normal build pipeline (scripts, non-MSBuild toolchains, code inspection):
+
+```bash
+dotnet tool install --global Mapo.Cli
+
+mapo gen src/ Generated/
+```
+
+This scans C# files for `[Mapper]` classes and writes generated `.g.cs` files. The output is identical to what the source generator produces during `dotnet build`. See [CLI Documentation](tools/Mapo.Cli/README.md) for details.
 
 ---
 

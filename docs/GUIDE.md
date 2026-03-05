@@ -27,6 +27,7 @@ Complete reference for using Mapo in your .NET projects.
 - [Strict Mode](#strict-mode)
 - [Ignoring Properties](#ignoring-properties)
 - [Generated Code](#generated-code)
+- [CLI Tool](#cli-tool)
 - [Diagnostics Reference](#diagnostics-reference)
 - [Best Practices](#best-practices)
 - [Performance Tips](#performance-tips)
@@ -724,6 +725,50 @@ For each mapping method:
 For static mappers, additionally:
 - **Extension methods** in `{ClassName}Extensions`
 - **Async streaming** `IAsyncEnumerable<T>` extensions
+
+---
+
+## CLI Tool
+
+Mapo includes a standalone CLI for generating mapping code outside the normal build pipeline.
+
+### Installation
+
+```bash
+# Global install
+dotnet tool install --global Mapo.Cli
+
+# Local install (per-repo)
+dotnet tool install Mapo.Cli
+```
+
+### Usage
+
+```bash
+mapo gen <input-dir> <output-dir>
+```
+
+The CLI scans `<input-dir>` recursively for `.cs` files, finds `[Mapper]` classes, and writes generated code to `<output-dir>`.
+
+```bash
+# Generate mappers from source directory
+mapo gen src/ Generated/
+
+# Generate from current directory
+mapo gen . ./Generated
+```
+
+The generated code is identical to what the NuGet source generator produces during `dotnet build`.
+
+### When to Use
+
+Most projects should use the **source generator** (it runs automatically on every build). The CLI is useful for:
+
+- Generating mappers in a separate build step or CI script
+- Inspecting generated code without `EmitCompilerGeneratedFiles`
+- Non-MSBuild toolchains where source generators aren't available
+
+See [CLI Documentation](../tools/Mapo.Cli/README.md) for full details.
 
 ---
 

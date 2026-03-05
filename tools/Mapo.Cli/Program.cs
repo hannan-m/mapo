@@ -10,39 +10,64 @@ class Program
 {
     static int Main(string[] args)
     {
-        if (args.Length < 2)
+        if (args.Length == 0 || args[0] is "--help" or "-h")
+            return ShowHelp();
+
+        if (args[0] is "--version" or "-v")
         {
-            Console.WriteLine("Usage: mapo-gen <input-dir> <output-dir>");
+            Console.WriteLine(typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0");
+            return 0;
+        }
+
+        if (args[0] != "gen")
+        {
+            Console.Error.WriteLine($"Unknown command: {args[0]}");
+            Console.Error.WriteLine("Run 'mapo --help' for usage.");
             return 1;
         }
 
-        string inputDir = Path.GetFullPath(args[0]);
-        string outputDir = Path.GetFullPath(args[1]);
+        if (args.Length < 3)
+        {
+            Console.Error.WriteLine("Usage: mapo gen <input-dir> <output-dir>");
+            return 1;
+        }
+
+        return Generate(args[1], args[2]);
+    }
+
+    static int Generate(string inputArg, string outputArg)
+    {
+        string inputDir = Path.GetFullPath(inputArg);
+        string outputDir = Path.GetFullPath(outputArg);
 
         if (!Directory.Exists(inputDir))
         {
-            Console.WriteLine($"Error: Input directory '{inputDir}' does not exist.");
+            Console.Error.WriteLine($"Error: Input directory '{inputDir}' does not exist.");
             return 1;
         }
 
-        Console.WriteLine($"🔍 Scanning for mappers in: {inputDir}");
-
-        // 1. Find all C# files
         var csharpFiles = Directory.GetFiles(inputDir, "*.cs", SearchOption.AllDirectories);
-        var syntaxTrees = csharpFiles.Select(f => CSharpSyntaxTree.ParseText(File.ReadAllText(f))).ToList();
+        if (csharpFiles.Length == 0)
+        {
+            Console.Error.WriteLine($"Error: No .cs files found in '{inputDir}'.");
+            return 1;
+        }
 
-        // 2. Create Compilation (needed for Semantic Model)
+        Console.WriteLine($"Scanning {csharpFiles.Length} file(s) in: {inputDir}");
+
+        var syntaxTrees = csharpFiles.Select(f => CSharpSyntaxTree.ParseText(File.ReadAllText(f), path: f)).ToList();
+
         var compilation = CSharpCompilation
             .Create("MapoTemp")
-            .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(Mapo.Attributes.MapperAttribute).Assembly.Location))
+            .AddReferences(
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Mapo.Attributes.MapperAttribute).Assembly.Location)
+            )
             .AddSyntaxTrees(syntaxTrees);
 
-        int count = 0;
-        if (!Directory.Exists(outputDir))
-            Directory.CreateDirectory(outputDir);
+        Directory.CreateDirectory(outputDir);
 
-        // 3. Process each tree
+        int count = 0;
         foreach (var tree in syntaxTrees)
         {
             var model = compilation.GetSemanticModel(tree);
@@ -55,20 +80,48 @@ class Program
 
                 if (result?.Mapper != null)
                 {
-                    Console.WriteLine($"✨ Generating: {result.Mapper.ClassName}");
                     string source = MapperEmitter.Emit(result.Mapper);
                     string filePath = Path.Combine(outputDir, $"{result.Mapper.ClassName}.g.cs");
                     File.WriteAllText(filePath, source);
+                    Console.WriteLine($"  Generated: {result.Mapper.ClassName}.g.cs");
                     count++;
                 }
             }
         }
 
-        Console.WriteLine($"\n✅ Done! Generated {count} mapper(s) in: {outputDir}");
+        if (count == 0)
+        {
+            Console.WriteLine("No [Mapper] classes found.");
+            return 0;
+        }
+
+        Console.WriteLine($"Done. Generated {count} mapper(s) in: {outputDir}");
+        return 0;
+    }
+
+    static int ShowHelp()
+    {
+        Console.WriteLine(
+            """
+            mapo - Compile-time object mapping code generator for .NET
+
+            Usage:
+              mapo gen <input-dir> <output-dir>
+              mapo --help
+              mapo --version
+
+            Commands:
+              gen    Scan C# source files for [Mapper] classes and generate mapping code.
+
+            Arguments:
+              <input-dir>    Directory containing C# source files to scan (recursive).
+              <output-dir>   Directory where generated .g.cs files are written.
+
+            Examples:
+              mapo gen src/Models generated/
+              mapo gen . ./Generated
+            """
+        );
         return 0;
     }
 }
-
-// Minimal polyfill for the context if needed, but since we reference the generator,
-// we should check if GeneratorSyntaxContext can be instantiated easily.
-// Actually, GeneratorSyntaxContext is a struct in Microsoft.CodeAnalysis.
