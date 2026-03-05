@@ -391,9 +391,72 @@ var target = new Target
 
 ## Nullable Types
 
-### Nullable Reference Types
+Mapo has comprehensive nullable reference type support. All of the following patterns work automatically with no configuration.
 
-Mapo generates null-safe `?.` chains for flattened nullable navigation:
+### Nullable Reference Types (`string?` → `string`)
+
+When a nullable reference type maps to a non-nullable target, Mapo emits the null-forgiving operator:
+
+```csharp
+public class Source { public string? Name { get; set; } }
+public class Target { public string Name { get; set; } = ""; }
+
+// Generated: target.Name = source.Name!;
+```
+
+### Nullable Nested Objects
+
+When a source property is a nullable complex type, Mapo emits a null-conditional mapping:
+
+```csharp
+public class Source { public AddressDto? Address { get; set; } }
+public class Target { public Address? Address { get; set; } }
+
+// Generated: target.Address = (source.Address != null ? MapAddress(source.Address) : default);
+```
+
+### Nullable Collections
+
+Nullable source collections return an empty list instead of throwing:
+
+```csharp
+public class Source { public List<ItemDto>? Items { get; set; } }
+public class Target { public List<Item> Items { get; set; } = new(); }
+
+// Generated: if (src == null) return new List<Item>();
+// Non-nullable source collections still throw ArgumentNullException on null
+```
+
+### Nullable Source with Converters
+
+`AddConverter<T, U>()` automatically matches `T?` source properties. A null check wraps the converter:
+
+```csharp
+public class Source { public string? ImageId { get; set; } }
+public class Target { public Guid ImageId { get; set; } }
+
+static void Configure(IMapConfig<Source, Target> config)
+{
+    config.AddConverter<string, Guid>(x => Guid.Parse(x));
+}
+
+// Generated: target.ImageId = (source.ImageId != null ? Guid.Parse(source.ImageId) : default);
+```
+
+### Nullable String to Enum
+
+When a `string?` maps to an enum, the null-forgiving operator suppresses CS8604:
+
+```csharp
+public class Source { public string? Status { get; set; } }
+public class Target { public OrderStatus Status { get; set; } }
+
+// Generated: target.Status = System.Enum.Parse<OrderStatus>(source.Status!);
+```
+
+### Nullable Flattening
+
+Null-safe `?.` chains for flattened nullable navigation:
 
 ```csharp
 public class Source { public Address? HomeAddress { get; set; } }

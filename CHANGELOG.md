@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-03-05
+
+### Fixed
+- **Nullable nested objects:** `new Type?()` is invalid C# for reference types — now strips `?` from target types in `new` expressions and emits null-conditional mapping (`source.Prop != null ? Map(source.Prop) : default`) for nullable source properties
+- **Collection element conversion:** `List<string>` → `List<Enum>` and vice versa now auto-generates inline LINQ with `Enum.Parse<T>()` / `.ToString()`
+- **Lambda namespace resolution:** converter lambdas referencing external types (e.g., `Guid.Parse`) now compile correctly — user `using` directives are forwarded to generated code
+- **Nullable converter matching:** `AddConverter<string, Guid>()` now correctly matches `string?` source properties by stripping nullable annotations before lookup
+- **Nullable string warnings:** `string?` → `string` assignments now use the null-forgiving operator (`!`) to suppress CS8601; `string?` → enum uses `Enum.Parse<T>(source.Prop!)` to suppress CS8604
+- **Nullable collections:** `List<T>?` source collections now return an empty list instead of throwing `ArgumentNullException`
+- **Spurious MAPO010:** diamond dependencies (two parents sharing a child type) no longer trigger false circular reference warnings — replaced simple re-discovery heuristic with ancestry-based cycle detection
+
+### Added
+- `TypeHelpers.StripNullableAnnotation()` and `ToConstructableDisplayString()` shared utilities
+- `MapperInfo.UserUsings` property for forwarding user `using` directives
+- 36 new regression tests: `NullableReferenceTypeTests`, `CollectionConversionTests`, `LambdaNamespaceTests`, `NullableCollectionTests`, `CycleDetectionTests`, `OcpiIntegrationTests`
+
+### Changed
+- Test infrastructure (`MapoVerifier`) now enables `NullableContextOptions.Enable` and uses explicit `CSharpParseOptions` with latest language version
+- CI release job builds before packing to ensure generator DLL exists (fixes NU5019)
+
 ## [1.0.0] - 2026-03-05
 
 ### Core Mapping
@@ -55,4 +75,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NativeAOT compatible (zero reflection at runtime)
 - SourceLink integration for debuggable NuGet packages
 - Deterministic builds
-- 129 unit tests + 52 integration tests
+- 129 unit tests + 52 integration tests (at initial release)

@@ -120,7 +120,7 @@ The generated code handles null-safety (`Category?.Name ?? default`), selects th
 | [Custom Mappings](docs/GUIDE.md#custom-mappings) | Strongly-typed lambda expressions via `IMapConfig<S,T>` |
 | [Collections](docs/GUIDE.md#collections) | `List<T>`, `T[]`, `IEnumerable<T>` with devirtualized `for` loops |
 | [Enum Mapping](docs/GUIDE.md#enum-mapping) | Enum-to-enum switch, enum-to-string `.ToString()`, string-to-enum `Enum.Parse` |
-| [Nullable Coercion](docs/GUIDE.md#nullable-value-type-auto-coercion) | `int?` to `int` auto-coerced with `?? default` |
+| [Nullable Handling](docs/GUIDE.md#nullable-types) | `string?`→`string` (null-forgiving), `MyClass?` (null-conditional), `List<T>?` (empty list), `int?`→`int` (`?? default`) |
 | [Records & Constructors](docs/GUIDE.md#records-and-constructors) | Full support for immutable types, primary constructors, init-only, required |
 | [Update Mapping](docs/GUIDE.md#update-mapping) | Mutate existing objects with `void` mapping methods |
 | [Dependency Injection](docs/GUIDE.md#dependency-injection) | Constructor-inject services, use them in Configure lambdas |

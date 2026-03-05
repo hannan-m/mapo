@@ -6,7 +6,7 @@ This file is a self-contained reference for AI coding assistants (Claude, Gemini
 
 Mapo is a **compile-time object mapper for .NET** powered by a Roslyn source generator. You write partial method declarations; Mapo generates the implementations at build time. Zero reflection, zero allocation overhead, NativeAOT compatible.
 
-**Install:** `dotnet add package Mapo`
+**Install:** `dotnet add package Mapo` (current version: 1.0.1)
 **Requires:** .NET 6+ with .NET SDK 8+
 
 ---
@@ -299,7 +299,34 @@ public partial class ShapeMapper
 
 Generated code uses `switch` on runtime type.
 
-### 15. Circular References
+### 15. Nullable Reference Types
+
+Mapo handles nullable reference types (`string?`, `MyClass?`) automatically:
+
+```csharp
+public class Source
+{
+    public string? Name { get; set; }           // string? → string: null-forgiving (!)
+    public InnerDto? Child { get; set; }        // Nullable nested: null-conditional mapping
+    public List<ItemDto>? Items { get; set; }   // Nullable collection: returns empty list
+    public string? ImageId { get; set; }        // With converter: null check wrapper
+}
+public class Target
+{
+    public string Name { get; set; } = "";
+    public Inner? Child { get; set; }
+    public List<Item> Items { get; set; } = new();
+    public Guid ImageId { get; set; }
+}
+```
+
+Generated behavior:
+- `string?` → `string`: `target.Name = source.Name!`
+- `InnerDto?` → `Inner?`: `target.Child = (source.Child != null ? MapInner(source.Child) : default)`
+- `List<ItemDto>?` → `List<Item>`: returns `new List<Item>()` when source is null
+- `string?` with `AddConverter<string, Guid>`: `(source.ImageId != null ? Guid.Parse(source.ImageId) : default)`
+
+### 16. Circular References
 
 ```csharp
 [Mapper(UseReferenceTracking = true)]
@@ -309,9 +336,9 @@ public partial class UserMapper
 }
 ```
 
-Uses a per-call `MappingContext` dictionary to detect cycles.
+Uses a per-call `MappingContext` dictionary to detect cycles. Diamond dependencies (two parents sharing a child type) do NOT trigger false warnings.
 
-### 16. Strict Mode
+### 17. Strict Mode
 
 ```csharp
 [Mapper(StrictMode = true)]
@@ -473,6 +500,8 @@ When generating Mapo code, follow these rules:
 8. **Configure parameters after `IMapConfig` must match constructor parameters** for DI
 9. **One Configure per type pair** — `static void Configure(IMapConfig<TSource, TTarget> config)`
 10. **Do NOT create one mapper per type pair** — group by bounded context so nested discovery works
+11. **Nullable collections should use `T?`** — `List<Item>? Items` returns empty list when null; `List<Item> Items` throws on null
+12. **AddConverter matches nullable sources** — `AddConverter<string, Guid>()` will match `string?` properties automatically
 
 ## CLI Tool
 

@@ -32,9 +32,9 @@ src/
 │   ├── MapoGenerator.cs              # IIncrementalGenerator entry point
 │   │
 │   ├── Syntax/                       # Phase 2: Parsing
-│   │   ├── MapperParser.cs           # Top-level orchestrator (~420 lines)
+│   │   ├── MapperParser.cs           # Top-level orchestrator (~460 lines)
 │   │   ├── ConfigParser.cs           # Parses Configure() method chains
-│   │   ├── PropertyMatcher.cs        # Property matching, flattening, type coercion
+│   │   ├── PropertyMatcher.cs        # Property matching, flattening, type coercion, nullable handling
 │   │   ├── MethodMappingFactory.cs   # Builds MethodMapping from type pairs
 │   │   └── ParameterRewriter.cs      # Rewrites lambda parameter names
 │   │
@@ -57,7 +57,7 @@ src/
 │   ├── Diagnostics/
 │   │   └── DiagnosticDescriptors.cs  # MAPO001–MAPO011 diagnostic definitions
 │   │
-│   └── TypeHelpers.cs                # Collection/type classification utilities
+│   └── TypeHelpers.cs                # Collection/type classification, nullable stripping
 │
 └── Mapo.Generator.CodeFixes/         # IDE integration
     └── MapoCodeFixProvider.cs         # Code fixes for MAPO001 + MAPO003
@@ -90,6 +90,8 @@ Receives a `ClassDeclarationSyntax` and `SemanticModel`. Performs:
 3. **Configuration parsing** — Delegates to `ConfigParser` for `.Map()`, `.Ignore()`, `.AddConverter()`, `.ReverseMap()` chains
 4. **Mapping generation** — Delegates to `MethodMappingFactory` for each source→target pair
 5. **Auto-discovery** — Breadth-first loop discovers nested mapping needs (e.g., `List<OrderItem>` discovers `OrderItem → OrderItemDto`)
+6. **Cycle detection** — Ancestry-based parent chain tracking distinguishes true circular references (A→B→A) from diamond dependencies (A→B→C, A→D→C)
+7. **Using collection** — Gathers user `using` directives from source file for forwarding to generated code
 
 ### ConfigParser
 
@@ -105,14 +107,16 @@ Parses the `Configure` method body from the syntax tree. Walks the AST to extrac
 Resolves how each target property gets its value. Checks (in order):
 
 1. **Injected renames** — DI field references from Configure parameters
-2. **Custom mappings** — Explicit `.Map()` from Configure
-3. **Global converters** — `AddConverter` type-pair match
-4. **Direct name match** — Same name, same type (case-insensitive)
+2. **Custom mappings** — Explicit `.Map()` from Configure (nullable-aware converter matching)
+3. **Global converters** — `AddConverter` type-pair match (strips nullable annotations before lookup)
+4. **Direct name match** — Same name, same type (case-insensitive). `string?` → `string` emits null-forgiving `!`
 5. **Nullable coercion** — `Nullable<T>` → `T` with `?? default`
-6. **Collection mapping** — `List<A>` → `List<B>` with element mapper discovery
-7. **Enum conversion** — Enum↔enum (switch), enum→string (`.ToString()`), string→enum (`Enum.Parse`)
-8. **Nested object** — Different complex types trigger sub-mapper discovery
+6. **Collection mapping** — `List<A>` → `List<B>` with element mapper discovery. Collection element conversion (`List<string>` ↔ `List<Enum>`) via inline LINQ
+7. **Enum conversion** — Enum↔enum (switch), enum→string (`.ToString()`), string→enum (`Enum.Parse`). Nullable `string?` → enum uses `!`
+8. **Nested object** — Different complex types trigger sub-mapper discovery. Strips nullable annotations from both source and target before adding to discovery list. Nullable source properties emit ternary null check
 9. **Flattening** — Recursive name decomposition (`AddressCity` → `Address.City`), up to 4 levels
+
+**Important:** `SymbolEqualityComparer.Default` ignores nullable annotations — `string?` and `string` compare as equal. This means nullable handling must be explicit (checking `NullableAnnotation` or using `TypeHelpers.StripNullableAnnotation()`) at every code path that generates expressions or matches converters.
 
 ### MethodMappingFactory
 
@@ -155,9 +159,10 @@ This handles arbitrary nesting: `Order` → `OrderItem` → `Product` → `Categ
 
 ### Collection Methods (CollectionEmitter)
 
-1. Type-check cascade: `T[]` → `List<T>` → fallback `IEnumerable`
-2. Pre-allocated `new List<T>(capacity)` for known-count collections
-3. `for` loop with direct indexing (no virtual dispatch)
+1. Nullable source check: nullable collections (`List<T>?`) return empty list; non-nullable throw `ArgumentNullException`
+2. Type-check cascade: `T[]` → `List<T>` → fallback `IEnumerable`
+3. Pre-allocated `new List<T>(capacity)` for known-count collections
+4. `for` loop with direct indexing (no virtual dispatch)
 
 ### Enum Methods (EnumEmitter)
 
@@ -185,7 +190,7 @@ All models implement `IEquatable<T>` for Roslyn's incremental caching:
 
 | Model | Purpose |
 |:------|:--------|
-| `MapperInfo` | Namespace, class name, static/instance, strict mode, reference tracking, list of mappings, injected members, global converters |
+| `MapperInfo` | Namespace, class name, static/instance, strict mode, reference tracking, list of mappings, injected members, global converters, user usings |
 | `MethodMapping` | Method name, source/target types, constructor args, property mappings, derived mappings, enum cases, flags (enum/collection/update/user-declared) |
 | `PropertyMapping` | Target name, source expression, null guard info, navigation segments, collection loop info, mapping origin |
 | `ConstructorArg` | Expression string + optional `CollectionLoopInfo` |
