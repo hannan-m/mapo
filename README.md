@@ -169,8 +169,8 @@ src/
   Mapo.Generator/           Roslyn incremental source generator
   Mapo.Generator.CodeFixes/ IDE code fix provider for MAPO001 + MAPO003
 tests/
-  Mapo.Generator.Tests/     129 unit tests (Roslyn compilation testing)
-  Mapo.IntegrationTests/    52 integration tests (runtime verification)
+  Mapo.Generator.Tests/     Unit tests (Roslyn compilation testing)
+  Mapo.IntegrationTests/    Integration tests (runtime verification)
 samples/
   Mapo.Sample/              Full e-commerce scenario
   Mapo.Benchmarks/          Performance comparison vs AutoMapper, Mapperly, Mapster
