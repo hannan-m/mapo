@@ -9,16 +9,8 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <PackageReference Include="Mapo" Version="1.0.0" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Mapo.Attributes\Mapo.Attributes.csproj" />
-    <ProjectReference
-      Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj"
-      OutputItemType="Analyzer"
-      ReferenceOutputAssembly="false"
-    />
   </ItemGroup>
 </Project>

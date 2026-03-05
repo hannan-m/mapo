@@ -8,11 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Mapo.Attributes\Mapo.Attributes.csproj" />
-    <ProjectReference
-      Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj"
-      OutputItemType="Analyzer"
-      ReferenceOutputAssembly="false"
-    />
+    <PackageReference Include="Mapo" Version="1.0.0" />
   </ItemGroup>
 </Project>

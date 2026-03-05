@@ -21,10 +21,10 @@
     <!-- We don't necessarily need project references to the samples, 
          as we'll be running them as external processes. 
          But we want them built before tests run. -->
-    <ProjectReference Include="..\..\samples\Mapo.Sample\Mapo.Sample.csproj" />
-    <ProjectReference Include="..\..\samples\Mapo.Circular\Mapo.Circular.csproj" />
-    <ProjectReference Include="..\..\samples\Mapo.Polymorphic\Mapo.Polymorphic.csproj" />
-    <ProjectReference Include="..\..\samples\Mapo.Aot\Mapo.Aot.csproj" />
+    <ProjectReference Include="..\..\samples\Mapo.Sample\Mapo.Sample.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\samples\Mapo.Circular\Mapo.Circular.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\samples\Mapo.Polymorphic\Mapo.Polymorphic.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\samples\Mapo.Aot\Mapo.Aot.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
