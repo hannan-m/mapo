@@ -10,9 +10,12 @@
     <ToolCommandName>mapo</ToolCommandName>
     <PackageId>Mapo.Cli</PackageId>
     <Description>CLI tool for Mapo compile-time object mapping code generation</Description>
-    <Authors>Muhammad Hannan</Authors>
+    <Authors>Mapo Contributors</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>mapping;codegen;roslyn;source-generator;cli</PackageTags>
+    <PackageProjectUrl>https://github.com/mapo-mapper/mapo</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mapo-mapper/mapo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
