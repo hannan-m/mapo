@@ -38,7 +38,7 @@ public class T { public int Id { get; set; } }
 public static partial class M { public static partial T Map(S s); }";
         var result = RunGenerator(source);
         var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
-        generated.Should().Contain("MExtensions");
+        generated.Should().Contain("public static class MExtensions");
         generated.Should().Contain("public static Test.T Map(this Test.S source)");
         AssertGeneratedCodeCompiles(source);
     }
