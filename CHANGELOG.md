@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-06
+
+### Added
+- **`[MapFrom]` attribute** — property-level attribute for renaming source properties without a Configure method. Supports enum conversion, global converters, nested auto-discovered types, and update mappings.
+- Complex type converter integration tests confirming `AddConverter<ClassA, ClassB>()` works for class-to-class conversions with null handling
+- 35 new unit tests (`MapFromTests`, `ComplexConverterTests`, `CollectionMappingTests`) and 18 new integration tests covering `[MapFrom]`, complex converters, same-element collections, nullable references, and inherited properties
+
+### Fixed
+- **Same-element-type collection mapping** — `List<string>` → `IReadOnlyList<string>` and similar covariant container changes no longer generate a bogus `MapstringTostring` method. Direct assignment is used when element types match.
+
+### Changed
+- Test count: 198 unit tests (was 163), 70 integration tests (was 52)
+
 ## [1.0.1] - 2026-03-05
 
 ### Fixed

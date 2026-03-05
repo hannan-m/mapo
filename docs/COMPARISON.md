@@ -37,6 +37,7 @@ Source generators (Mapo, Mapperly) are **indistinguishable from hand-written cod
 | Feature | Mapo | Mapperly | AutoMapper | Mapster |
 |:--------|:----:|:--------:|:----------:|:-------:|
 | NativeAOT compatible | Yes | Yes | No | No |
+| Property rename attribute | Yes (`[MapFrom]`) | Yes (`[MapProperty]`) | No | No |
 | Refactoring-safe config | Yes | Partial | Yes | Yes |
 | Constructor/record mapping | Yes | Yes | Yes | Yes |
 | Auto-flattening | Yes (4 levels) | Yes | Yes | Yes |

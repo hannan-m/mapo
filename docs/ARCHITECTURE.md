@@ -25,7 +25,7 @@ The parser and emitter are fully decoupled. The parser produces plain data objec
 ```
 src/
 ├── Mapo.Attributes/                  # Public API (netstandard2.0)
-│   ├── MapperAttribute.cs            # [Mapper], [MapDerived], IMapConfig<S,T>
+│   ├── MapperAttribute.cs            # [Mapper], [MapDerived], [MapFrom], IMapConfig<S,T>
 │   └── MappingContext.cs             # Circular reference tracking dictionary
 │
 ├── Mapo.Generator/                   # Source generator (netstandard2.0)
@@ -122,6 +122,7 @@ Resolves how each target property gets its value. Checks (in order):
 
 Builds a `MethodMapping` from a source→target type pair:
 
+- Reads `[MapFrom]` attributes on target properties to resolve rename lookups before delegating to `PropertyMatcher`
 - Selects the best public constructor (most parameters matching source properties)
 - Iterates settable target properties, delegating to `PropertyMatcher` for each
 - Tracks unmapped properties for diagnostics

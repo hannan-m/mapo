@@ -117,6 +117,7 @@ The generated code handles null-safety (`Category?.Name ?? default`), selects th
 |:--------|:------------|
 | [Basic Mapping](docs/GUIDE.md#basic-mapping) | Auto-match properties by name (case-insensitive), classes and records |
 | [Flattening](docs/GUIDE.md#flattening) | `Address.City` auto-maps to `AddressCity` — recursive up to 4 levels |
+| [Property Renaming](docs/GUIDE.md#property-renaming) | `[MapFrom("SourceName")]` attribute for simple renames without Configure |
 | [Custom Mappings](docs/GUIDE.md#custom-mappings) | Strongly-typed lambda expressions via `IMapConfig<S,T>` |
 | [Collections](docs/GUIDE.md#collections) | `List<T>`, `T[]`, `IEnumerable<T>` with devirtualized `for` loops |
 | [Enum Mapping](docs/GUIDE.md#enum-mapping) | Enum-to-enum switch, enum-to-string `.ToString()`, string-to-enum `Enum.Parse` |
@@ -165,7 +166,7 @@ This scans C# files for `[Mapper]` classes and writes generated `.g.cs` files. T
 
 ```
 src/
-  Mapo.Attributes/          Public API: [Mapper], IMapConfig<S,T>, [MapDerived]
+  Mapo.Attributes/          Public API: [Mapper], [MapFrom], IMapConfig<S,T>, [MapDerived]
   Mapo.Generator/           Roslyn incremental source generator
   Mapo.Generator.CodeFixes/ IDE code fix provider for MAPO001 + MAPO003
 tests/

@@ -10,6 +10,7 @@ Complete reference for using Mapo in your .NET projects.
 - [Getting Started](#getting-started)
 - [Basic Mapping](#basic-mapping)
 - [Flattening](#flattening)
+- [Property Renaming](#property-renaming)
 - [Custom Mappings](#custom-mappings)
 - [Collections](#collections)
 - [Enum Mapping](#enum-mapping)
@@ -174,6 +175,57 @@ target.HeadquartersCountryName = company.Headquarters?.Country?.Name ?? default;
 ```
 
 Beyond 4 levels, properties are reported as unmapped ([MAPO001](#mapo001-property-is-not-mapped)).
+
+---
+
+## Property Renaming
+
+When source and target properties have different names, use the `[MapFrom]` attribute on the target property:
+
+```csharp
+public class ApiItemDto
+{
+    public string Type { get; set; } = "";
+    public string Class { get; set; } = "";
+    public int Id { get; set; }
+}
+
+public class DomainItem
+{
+    public int Id { get; set; }
+
+    [MapFrom("Type")]
+    public string ItemType { get; set; } = "";
+
+    [MapFrom("Class")]
+    public string CssClass { get; set; } = "";
+}
+```
+
+Generated:
+
+```csharp
+target.Id = source.Id;
+target.ItemType = source.Type;    // Renamed via [MapFrom]
+target.CssClass = source.Class;   // Renamed via [MapFrom]
+```
+
+### Features
+
+- **Case-insensitive matching** — `[MapFrom("type")]` matches a source property named `Type`
+- **Enum conversion** — `[MapFrom("Type")] public MyEnum ItemType` auto-applies `Enum.Parse`
+- **Works with converters** — `[MapFrom("RawId")]` combined with `AddConverter<string, Guid>` applies both
+- **Auto-discovered types** — `[MapFrom]` on types discovered via nested/collection mapping works correctly
+- **Update mapping** — Works with `void Apply(source, target)` methods
+
+### When to use `[MapFrom]` vs `Configure`
+
+| Scenario | Recommended |
+|:---------|:------------|
+| Simple property rename | `[MapFrom("Name")]` |
+| Computed values | `Configure` with `.Map()` |
+| Multiple renames, no computation | `[MapFrom]` on each property |
+| Complex expressions or LINQ | `Configure` with `.Map()` |
 
 ---
 

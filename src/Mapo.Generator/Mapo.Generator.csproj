@@ -6,10 +6,10 @@
 
     <!-- NuGet Packaging Properties -->
     <PackageId>Mapo</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Description>A high-performance, source-generated object mapper for .NET. Zero reflection, NativeAOT compatible.</Description>
     <Authors>Mapo Contributors</Authors>
-    <PackageTags>mapper;source-generator;roslyn;mapping;object-mapping;aot</PackageTags>
+    <PackageTags>mapper;source-generator;roslyn;mapping;object-mapping;aot;dotnet;csharp;net8;net9;net10;nativeaot</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/hannan-m/mapo</PackageProjectUrl>
     <RepositoryUrl>https://github.com/hannan-m/mapo</RepositoryUrl>
