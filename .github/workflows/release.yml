@@ -3,42 +3,57 @@ name: Publish to NuGet
 on:
   push:
     tags:
-      - 'v*.*.*' # Trigger only on version tags, e.g., v1.0.0, v1.0.1-beta
+      - "v*.*.*"
 
 jobs:
   publish:
+    name: Pack & Publish
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
 
-    - name: Extract Version from Tag
-      id: get_version
-      run: |
-        TAG_NAME=${GITHUB_REF#refs/tags/}
-        VERSION=${TAG_NAME#v}
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Extracted version: $VERSION"
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+          restore-keys: nuget-${{ runner.os }}-
 
-    - name: Restore dependencies
-      run: dotnet restore src/Mapo.Generator/Mapo.Generator.csproj
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Extracted version: $VERSION"
 
-    - name: Pack Mapo.Generator (Single Package)
-      # The .csproj is already configured to pack both the Analyzer and the Attributes DLL into one package
-      run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
+      - name: Restore dependencies
+        run: dotnet restore Mapo.slnx
 
-    - name: Push to NuGet
-      # Requires a GitHub Secret named NUGET_API_KEY containing your NuGet.org API Key
-      run: dotnet nuget push ./artifacts/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Build solution
+        run: dotnet build Mapo.slnx --configuration Release --no-restore
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: Release ${{ env.VERSION }}
-        files: ./artifacts/*.nupkg
-        generate_release_notes: true
+      - name: Run unit tests
+        run: dotnet test tests/Mapo.Generator.Tests/ --configuration Release --no-build
+
+      - name: Run integration tests
+        run: dotnet test tests/Mapo.IntegrationTests/ --configuration Release --no-build
+
+      - name: Pack NuGet
+        run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
+
+      - name: Push to NuGet
+        run: dotnet nuget push ./artifacts/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ env.VERSION }}
+          files: ./artifacts/*.nupkg
+          generate_release_notes: true

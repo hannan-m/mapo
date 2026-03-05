@@ -2,35 +2,81 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  format:
+    name: Check Formatting
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
 
-    - name: Restore dependencies
-      run: dotnet restore Mapo.slnx
+      - name: Restore tools
+        run: dotnet tool restore
 
-    - name: Build Solution
-      run: dotnet build Mapo.slnx --configuration Release --no-restore
+      - name: Check formatting
+        run: dotnet csharpier check .
 
-    - name: Run Unit Tests
-      run: dotnet test tests/Mapo.Generator.Tests/Mapo.Generator.Tests.csproj --configuration Release --no-build --verbosity normal
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
 
-    - name: Run Integration Tests
-      run: dotnet test tests/Mapo.IntegrationTests/Mapo.IntegrationTests.csproj --configuration Release --no-build --verbosity normal
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Run Benchmark Verification
-      # We just compile the benchmarks to ensure the generator isn't producing invalid code for complex scenarios.
-      # We don't run the actual benchmarks in CI as it takes too long and fluctuates.
-      run: dotnet build samples/Mapo.Benchmarks/Mapo.Benchmarks.csproj --configuration Release
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore Mapo.slnx
+
+      - name: Build solution
+        run: dotnet build Mapo.slnx --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test tests/Mapo.Generator.Tests/ --configuration Release --no-build --logger "trx;LogFileName=unit-tests.trx"
+
+      - name: Run integration tests
+        run: dotnet test tests/Mapo.IntegrationTests/ --configuration Release --no-build --logger "trx;LogFileName=integration-tests.trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"
+          retention-days: 7
+
+      - name: Build benchmarks (compile verification)
+        run: dotnet build samples/Mapo.Benchmarks/ --configuration Release --no-restore
+
+      - name: Pack NuGet (verification)
+        run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj --configuration Release --no-build --output ./artifacts
+
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts/*.nupkg
+          retention-days: 7
