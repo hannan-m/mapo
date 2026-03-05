@@ -130,9 +130,10 @@ internal static class MethodMappingFactory
             {
                 if (ignoredProps.Contains(targetProp.Name) || handledByCtor.Contains(targetProp.Name))
                     continue;
+                var lookupName = GetMapFromName(targetProp) ?? targetProp.Name;
                 if (
                     PropertyMatcher.TryMatchSource(
-                        targetProp.Name,
+                        lookupName,
                         targetProp.Type,
                         sourceType,
                         sourceName,
@@ -202,9 +203,10 @@ internal static class MethodMappingFactory
             {
                 if (ignoredProps.Contains(targetProp.Name))
                     continue;
+                var lookupName = GetMapFromName(targetProp) ?? targetProp.Name;
                 if (
                     PropertyMatcher.TryMatchSource(
-                        targetProp.Name,
+                        lookupName,
                         targetProp.Type,
                         sourceType,
                         sourceName,
@@ -306,6 +308,12 @@ internal static class MethodMappingFactory
             sourceItemTypeDisplayString: sItem?.ToDisplayString(),
             targetItemTypeDisplayString: tItem?.ToDisplayString()
         );
+    }
+
+    private static string? GetMapFromName(IPropertySymbol prop)
+    {
+        var attr = prop.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == "MapFromAttribute");
+        return attr?.ConstructorArguments.Length > 0 ? attr.ConstructorArguments[0].Value?.ToString() : null;
     }
 
     private static bool IsRequired(IPropertySymbol prop)

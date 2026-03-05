@@ -57,6 +57,27 @@ public class MapDerivedAttribute : Attribute
 }
 
 /// <summary>
+/// Specifies the source property name to map from when target and source property names differ.
+/// Eliminates the need for a Configure method with <c>.Map(d => d.ItemType, s => s.Type)</c>.
+/// </summary>
+/// <example>
+/// <code>
+/// public class Target
+/// {
+///     [MapFrom("Type")]
+///     public string ItemType { get; set; }
+/// }
+/// </code>
+/// </example>
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+public class MapFromAttribute : Attribute
+{
+    public string SourcePropertyName { get; }
+
+    public MapFromAttribute(string sourcePropertyName) => SourcePropertyName = sourcePropertyName;
+}
+
+/// <summary>
 /// Fluent configuration interface for customizing a mapping between <typeparamref name="TSource"/> and <typeparamref name="TTarget"/>.
 /// Used inside a static <c>Configure</c> method — parsed at compile time, never called at runtime.
 /// </summary>
