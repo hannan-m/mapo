@@ -26,6 +26,7 @@ public class CodeWriter
     }
 
     public void Indent() => _indent++;
+
     public void Dedent() => _indent = Math.Max(0, _indent - 1);
 
     private string GetIndentation()
@@ -64,7 +65,8 @@ public class CodeWriter
 
     public override string ToString()
     {
-        if (_returned) throw new InvalidOperationException("CodeWriter.ToString() has already been called.");
+        if (_returned)
+            throw new InvalidOperationException("CodeWriter.ToString() has already been called.");
         _returned = true;
         return StringBuilderPool.ToStringAndReturn(_sb);
     }

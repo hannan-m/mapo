@@ -6,7 +6,11 @@ namespace Mapo.Generator.Emit;
 
 internal static class ExpressionEmitter
 {
-    public static string PrepareExpression(PropertyMapping pm, MapperInfo mapper, List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns)
+    public static string PrepareExpression(
+        PropertyMapping pm,
+        MapperInfo mapper,
+        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns
+    )
     {
         var expr = mapper.IsStatic ? pm.SourceExpression.Replace("this.", "") : pm.SourceExpression;
         expr = RedirectToInternal(expr, mapper, methodPatterns);
@@ -37,7 +41,11 @@ internal static class ExpressionEmitter
         return expr;
     }
 
-    public static string RedirectToInternal(string expression, MapperInfo mapper, List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns)
+    public static string RedirectToInternal(
+        string expression,
+        MapperInfo mapper,
+        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns
+    )
     {
         var result = expression;
         var prefix = mapper.IsStatic ? "" : "this.";
@@ -58,7 +66,8 @@ internal static class ExpressionEmitter
             while (true)
             {
                 var match = callPattern.Match(result, lastSearchIndex);
-                if (!match.Success) break;
+                if (!match.Success)
+                    break;
 
                 int start = match.Index;
                 int openParen = result.IndexOf('(', start);
@@ -70,9 +79,12 @@ internal static class ExpressionEmitter
                     string replacement;
                     if (mapper.UseReferenceTracking)
                     {
-                        if (string.IsNullOrEmpty(args)) replacement = $"{prefix}{internalName}(_context)";
-                        else if (args.EndsWith("_context") || args.Contains(", _context")) replacement = $"{prefix}{internalName}({args})";
-                        else replacement = $"{prefix}{internalName}({args}, _context)";
+                        if (string.IsNullOrEmpty(args))
+                            replacement = $"{prefix}{internalName}(_context)";
+                        else if (args.EndsWith("_context") || args.Contains(", _context"))
+                            replacement = $"{prefix}{internalName}({args})";
+                        else
+                            replacement = $"{prefix}{internalName}({args}, _context)";
                     }
                     else
                     {
@@ -87,7 +99,8 @@ internal static class ExpressionEmitter
                     lastSearchIndex = start + match.Length;
                 }
 
-                if (lastSearchIndex >= result.Length) break;
+                if (lastSearchIndex >= result.Length)
+                    break;
             }
         }
         return result;
@@ -132,16 +145,19 @@ internal static class ExpressionEmitter
             if (c == '\'')
             {
                 i++;
-                if (i < s.Length && s[i] == '\\') i++; // skip escape
+                if (i < s.Length && s[i] == '\\')
+                    i++; // skip escape
                 i++; // skip the char
                 continue;
             }
 
-            if (c == '(') count++;
+            if (c == '(')
+                count++;
             else if (c == ')')
             {
                 count--;
-                if (count == 0) return i;
+                if (count == 0)
+                    return i;
             }
         }
         return -1;

@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
-    
+
     <!-- NuGet Packaging Properties -->
     <PackageId>Mapo</PackageId>
     <Version>1.0.0</Version>
@@ -17,7 +16,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- We manually place outputs -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- We manually place outputs -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
@@ -40,7 +40,11 @@
 
   <!-- Reference the Attributes project, but don't expose it as a standard reference to the parent project -->
   <ItemGroup>
-    <ProjectReference Include="..\Mapo.Attributes\Mapo.Attributes.csproj" PrivateAssets="All" GeneratePathProperty="true" />
+    <ProjectReference
+      Include="..\Mapo.Attributes\Mapo.Attributes.csproj"
+      PrivateAssets="All"
+      GeneratePathProperty="true"
+    />
   </ItemGroup>
 
   <!-- Package the Generator DLL as an analyzer -->
@@ -55,10 +59,12 @@
 
   <Target Name="PackMapoAttributes" DependsOnTargets="ResolveProjectReferences">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="@(_ResolvedProjectReferencePaths)" Condition="'%(Filename)' == 'Mapo.Attributes'">
+      <TfmSpecificPackageFile
+        Include="@(_ResolvedProjectReferencePaths)"
+        Condition="'%(Filename)' == 'Mapo.Attributes'"
+      >
         <PackagePath>lib/netstandard2.0/</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
-
 </Project>

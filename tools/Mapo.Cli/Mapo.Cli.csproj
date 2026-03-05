@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj" />
     <ProjectReference Include="..\..\src\Mapo.Attributes\Mapo.Attributes.csproj" />
@@ -15,5 +14,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
 </Project>

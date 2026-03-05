@@ -2,21 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Mapo.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Mapo.Generator.Models;
 
 namespace Mapo.Generator.Syntax;
 
 internal static class PropertyMatcher
 {
-    public static bool TryMatchSource(string targetName, ITypeSymbol targetType, ITypeSymbol sourceType, string sourceName,
-        Dictionary<string, (string ParamName, ExpressionSyntax Body)> customMappings, List<IMethodSymbol> partialMethods,
-        Dictionary<string, (ITypeSymbol, ITypeSymbol)> enumMappings, Dictionary<string, string> injectedRenames,
-        List<GlobalConverter> globalConverters, out string? expression, List<(ITypeSymbol, ITypeSymbol)> discoveryList,
-        Dictionary<(ITypeSymbol, ITypeSymbol), string> nameMap, bool isConstructor, SemanticModel model,
-        out List<string>? navigationSegments, out bool requiresNullGuard, out string mappingOrigin,
-        out bool hasNullableMismatch)
+    public static bool TryMatchSource(
+        string targetName,
+        ITypeSymbol targetType,
+        ITypeSymbol sourceType,
+        string sourceName,
+        Dictionary<string, (string ParamName, ExpressionSyntax Body)> customMappings,
+        List<IMethodSymbol> partialMethods,
+        Dictionary<string, (ITypeSymbol, ITypeSymbol)> enumMappings,
+        Dictionary<string, string> injectedRenames,
+        List<GlobalConverter> globalConverters,
+        out string? expression,
+        List<(ITypeSymbol, ITypeSymbol)> discoveryList,
+        Dictionary<(ITypeSymbol, ITypeSymbol), string> nameMap,
+        bool isConstructor,
+        SemanticModel model,
+        out List<string>? navigationSegments,
+        out bool requiresNullGuard,
+        out string mappingOrigin,
+        out bool hasNullableMismatch
+    )
     {
         expression = null;
         navigationSegments = null;
@@ -33,19 +46,33 @@ internal static class PropertyMatcher
 
         if (customMappings.TryGetValue(targetName, out var custom))
         {
-            var rewriter = new ParameterRewriter(custom.ParamName, sourceName, ImmutableHashSet<string>.Empty, injectedRenames);
+            var rewriter = new ParameterRewriter(
+                custom.ParamName,
+                sourceName,
+                ImmutableHashSet<string>.Empty,
+                injectedRenames
+            );
             var bodyNode = rewriter.Visit(custom.Body);
             var body = bodyNode.ToFullString();
-            
+
             var cleanProp = body.Replace(sourceName + ".", "");
-            var sourcePropsForCheck = TypeHelpers.GetAllProperties(sourceType).ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
-            
+            var sourcePropsForCheck = TypeHelpers
+                .GetAllProperties(sourceType)
+                .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+
             if (sourcePropsForCheck.TryGetValue(cleanProp, out var sPropCheck))
             {
-                var converter = globalConverters.FirstOrDefault(c => c.SourceTypeDisplayString == sPropCheck.Type.ToDisplayString() && c.TargetTypeDisplayString == targetType.ToDisplayString());
+                var converter = globalConverters.FirstOrDefault(c =>
+                    c.SourceTypeDisplayString == sPropCheck.Type.ToDisplayString()
+                    && c.TargetTypeDisplayString == targetType.ToDisplayString()
+                );
                 if (converter != null)
                 {
-                    expression = System.Text.RegularExpressions.Regex.Replace(converter.Expression, $@"\b{System.Text.RegularExpressions.Regex.Escape(converter.ParamName)}\b", $"({body})");
+                    expression = System.Text.RegularExpressions.Regex.Replace(
+                        converter.Expression,
+                        $@"\b{System.Text.RegularExpressions.Regex.Escape(converter.ParamName)}\b",
+                        $"({body})"
+                    );
                     mappingOrigin = "Converter";
                     return true;
                 }
@@ -54,7 +81,10 @@ internal static class PropertyMatcher
                 {
                     var pair = (sPropCheck.Type, targetType);
                     string? mName;
-                    if (nameMap.TryGetValue(pair, out mName) || TryFindMapper(sPropCheck.Type, targetType, partialMethods, out mName))
+                    if (
+                        nameMap.TryGetValue(pair, out mName)
+                        || TryFindMapper(sPropCheck.Type, targetType, partialMethods, out mName)
+                    )
                     {
                         expression = $"{mName}({body})";
                         mappingOrigin = "Custom";
@@ -65,10 +95,24 @@ internal static class PropertyMatcher
                     {
                         var sItem = TypeHelpers.GetItemType(sPropCheck.Type);
                         var tItem = TypeHelpers.GetItemType(targetType);
-                        if (sItem != null && tItem != null && TypeHelpers.IsMappable(sItem) && TypeHelpers.IsMappable(tItem) && sItem.SpecialType == SpecialType.None && tItem.SpecialType == SpecialType.None)
+                        if (
+                            sItem != null
+                            && tItem != null
+                            && TypeHelpers.IsMappable(sItem)
+                            && TypeHelpers.IsMappable(tItem)
+                            && sItem.SpecialType == SpecialType.None
+                            && tItem.SpecialType == SpecialType.None
+                        )
                         {
                             discoveryList.Add(pair);
-                            mName = nameMap.TryGetValue(pair, out var existing) ? existing : ("Map" + TypeHelpers.CleanGenericName(sPropCheck.Type) + "To" + TypeHelpers.CleanGenericName(targetType));
+                            mName = nameMap.TryGetValue(pair, out var existing)
+                                ? existing
+                                : (
+                                    "Map"
+                                    + TypeHelpers.CleanGenericName(sPropCheck.Type)
+                                    + "To"
+                                    + TypeHelpers.CleanGenericName(targetType)
+                                );
                             nameMap[pair] = mName;
                             expression = $"{mName}({body})";
                             mappingOrigin = "Custom";
@@ -85,24 +129,42 @@ internal static class PropertyMatcher
                         return true;
                     }
 
-                    if (sPropCheck.Type.TypeKind == TypeKind.Enum && targetType.SpecialType == SpecialType.System_String)
+                    if (
+                        sPropCheck.Type.TypeKind == TypeKind.Enum
+                        && targetType.SpecialType == SpecialType.System_String
+                    )
                     {
                         expression = $"({body}).ToString()";
                         mappingOrigin = "Custom";
                         return true;
                     }
 
-                    if (sPropCheck.Type.SpecialType == SpecialType.System_String && targetType.TypeKind == TypeKind.Enum)
+                    if (
+                        sPropCheck.Type.SpecialType == SpecialType.System_String
+                        && targetType.TypeKind == TypeKind.Enum
+                    )
                     {
                         expression = $"System.Enum.Parse<{targetType.ToDisplayString()}>({body})";
                         mappingOrigin = "Custom";
                         return true;
                     }
 
-                    if (TypeHelpers.IsMappable(sPropCheck.Type) && TypeHelpers.IsMappable(targetType) && sPropCheck.Type.SpecialType == SpecialType.None && targetType.SpecialType == SpecialType.None)
+                    if (
+                        TypeHelpers.IsMappable(sPropCheck.Type)
+                        && TypeHelpers.IsMappable(targetType)
+                        && sPropCheck.Type.SpecialType == SpecialType.None
+                        && targetType.SpecialType == SpecialType.None
+                    )
                     {
                         discoveryList.Add(pair);
-                        mName = nameMap.TryGetValue(pair, out var existing) ? existing : ("Map" + TypeHelpers.CleanGenericName(sPropCheck.Type) + "To" + TypeHelpers.CleanGenericName(targetType));
+                        mName = nameMap.TryGetValue(pair, out var existing)
+                            ? existing
+                            : (
+                                "Map"
+                                + TypeHelpers.CleanGenericName(sPropCheck.Type)
+                                + "To"
+                                + TypeHelpers.CleanGenericName(targetType)
+                            );
                         nameMap[pair] = mName;
                         expression = $"{mName}({body})";
                         mappingOrigin = "Custom";
@@ -121,15 +183,24 @@ internal static class PropertyMatcher
                 {
                     var pair = (sItem, tItem);
                     string? mItemName;
-                    if (nameMap.TryGetValue(pair, out mItemName) || TryFindMapper(sItem, tItem, partialMethods, out mItemName))
+                    if (
+                        nameMap.TryGetValue(pair, out mItemName)
+                        || TryFindMapper(sItem, tItem, partialMethods, out mItemName)
+                    )
                     {
                         expression = body.Replace(".ToList()", $".Select({mItemName}).ToList()");
                         mappingOrigin = "Custom";
                         return true;
                     }
-                    else if (TypeHelpers.IsMappable(sItem) && TypeHelpers.IsMappable(tItem) && sItem.SpecialType == SpecialType.None && tItem.SpecialType == SpecialType.None)
+                    else if (
+                        TypeHelpers.IsMappable(sItem)
+                        && TypeHelpers.IsMappable(tItem)
+                        && sItem.SpecialType == SpecialType.None
+                        && tItem.SpecialType == SpecialType.None
+                    )
                     {
-                        var autoItemName = "Map" + TypeHelpers.CleanGenericName(sItem) + "To" + TypeHelpers.CleanGenericName(tItem);
+                        var autoItemName =
+                            "Map" + TypeHelpers.CleanGenericName(sItem) + "To" + TypeHelpers.CleanGenericName(tItem);
                         discoveryList.Add(pair);
                         nameMap[pair] = autoItemName;
                         expression = body.Replace(".ToList()", $".Select({autoItemName}).ToList()");
@@ -144,15 +215,24 @@ internal static class PropertyMatcher
             return true;
         }
 
-        var sourceProps = TypeHelpers.GetAllProperties(sourceType).ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+        var sourceProps = TypeHelpers
+            .GetAllProperties(sourceType)
+            .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
 
         if (sourceProps.TryGetValue(targetName, out var sourceProp))
         {
-            var gConverter = globalConverters.FirstOrDefault(c => c.SourceTypeDisplayString == sourceProp.Type.ToDisplayString() && c.TargetTypeDisplayString == targetType.ToDisplayString());
+            var gConverter = globalConverters.FirstOrDefault(c =>
+                c.SourceTypeDisplayString == sourceProp.Type.ToDisplayString()
+                && c.TargetTypeDisplayString == targetType.ToDisplayString()
+            );
             if (gConverter != null)
             {
                 var sourceAccess = $"{sourceName}.{sourceProp.Name}";
-                expression = System.Text.RegularExpressions.Regex.Replace(gConverter.Expression, $@"\b{System.Text.RegularExpressions.Regex.Escape(gConverter.ParamName)}\b", $"({sourceAccess})");
+                expression = System.Text.RegularExpressions.Regex.Replace(
+                    gConverter.Expression,
+                    $@"\b{System.Text.RegularExpressions.Regex.Escape(gConverter.ParamName)}\b",
+                    $"({sourceAccess})"
+                );
                 mappingOrigin = "Converter";
                 return true;
             }
@@ -163,9 +243,11 @@ internal static class PropertyMatcher
                 mappingOrigin = "Direct";
 
                 // Nullable mismatch detection for reference types
-                if (!sourceProp.Type.IsValueType &&
-                    sourceProp.NullableAnnotation == NullableAnnotation.Annotated &&
-                    targetType.NullableAnnotation == NullableAnnotation.NotAnnotated)
+                if (
+                    !sourceProp.Type.IsValueType
+                    && sourceProp.NullableAnnotation == NullableAnnotation.Annotated
+                    && targetType.NullableAnnotation == NullableAnnotation.NotAnnotated
+                )
                 {
                     hasNullableMismatch = true;
                 }
@@ -174,10 +256,12 @@ internal static class PropertyMatcher
             }
 
             // Nullable value type auto-coercion: Nullable<T> -> T with ?? default
-            if (sourceProp.Type is INamedTypeSymbol sourceNamed &&
-                sourceNamed.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T &&
-                sourceNamed.TypeArguments.Length == 1 &&
-                SymbolEqualityComparer.Default.Equals(sourceNamed.TypeArguments[0], targetType))
+            if (
+                sourceProp.Type is INamedTypeSymbol sourceNamed
+                && sourceNamed.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+                && sourceNamed.TypeArguments.Length == 1
+                && SymbolEqualityComparer.Default.Equals(sourceNamed.TypeArguments[0], targetType)
+            )
             {
                 expression = $"({sourceName}.{sourceProp.Name} ?? default)";
                 mappingOrigin = "Direct";
@@ -192,20 +276,35 @@ internal static class PropertyMatcher
             {
                 var sItem = TypeHelpers.GetItemType(sourceProp.Type);
                 var tItem = TypeHelpers.GetItemType(targetType);
-                if (sItem != null && tItem != null && TypeHelpers.IsMappable(sItem) && TypeHelpers.IsMappable(tItem) && sItem.SpecialType == SpecialType.None && tItem.SpecialType == SpecialType.None)
+                if (
+                    sItem != null
+                    && tItem != null
+                    && TypeHelpers.IsMappable(sItem)
+                    && TypeHelpers.IsMappable(tItem)
+                    && sItem.SpecialType == SpecialType.None
+                    && tItem.SpecialType == SpecialType.None
+                )
                 {
                     discoveryList.Add(pair);
                     if (!nameMap.TryGetValue(pair, out mName))
                     {
-                        mName = "Map" + TypeHelpers.CleanGenericName(sourceProp.Type) + "To" + TypeHelpers.CleanGenericName(targetType);
+                        mName =
+                            "Map"
+                            + TypeHelpers.CleanGenericName(sourceProp.Type)
+                            + "To"
+                            + TypeHelpers.CleanGenericName(targetType);
                         nameMap[pair] = mName;
                     }
 
                     var itemPair = (sItem, tItem);
                     string? itemMapperName;
-                    if (!nameMap.TryGetValue(itemPair, out itemMapperName) && !TryFindMapper(sItem, tItem, partialMethods, out itemMapperName))
+                    if (
+                        !nameMap.TryGetValue(itemPair, out itemMapperName)
+                        && !TryFindMapper(sItem, tItem, partialMethods, out itemMapperName)
+                    )
                     {
-                        itemMapperName = "Map" + TypeHelpers.CleanGenericName(sItem) + "To" + TypeHelpers.CleanGenericName(tItem);
+                        itemMapperName =
+                            "Map" + TypeHelpers.CleanGenericName(sItem) + "To" + TypeHelpers.CleanGenericName(tItem);
                         nameMap[itemPair] = itemMapperName;
                         discoveryList.Add(itemPair);
                     }
@@ -239,12 +338,21 @@ internal static class PropertyMatcher
                 return true;
             }
 
-            if (TypeHelpers.IsMappable(sourceProp.Type) && TypeHelpers.IsMappable(targetType) && sourceProp.Type.SpecialType == SpecialType.None && targetType.SpecialType == SpecialType.None)
+            if (
+                TypeHelpers.IsMappable(sourceProp.Type)
+                && TypeHelpers.IsMappable(targetType)
+                && sourceProp.Type.SpecialType == SpecialType.None
+                && targetType.SpecialType == SpecialType.None
+            )
             {
                 discoveryList.Add(pair);
                 if (!nameMap.TryGetValue(pair, out mName))
                 {
-                    mName = "Map" + TypeHelpers.CleanGenericName(sourceProp.Type) + "To" + TypeHelpers.CleanGenericName(targetType);
+                    mName =
+                        "Map"
+                        + TypeHelpers.CleanGenericName(sourceProp.Type)
+                        + "To"
+                        + TypeHelpers.CleanGenericName(targetType);
                     nameMap[pair] = mName;
                 }
                 expression = $"{mName}({sourceName}.{sourceProp.Name})";
@@ -253,7 +361,17 @@ internal static class PropertyMatcher
             }
         }
 
-        if (TryFlattenNullSafe(targetName, targetType, sourceType, sourceName, out expression, out navigationSegments, out requiresNullGuard))
+        if (
+            TryFlattenNullSafe(
+                targetName,
+                targetType,
+                sourceType,
+                sourceName,
+                out expression,
+                out navigationSegments,
+                out requiresNullGuard
+            )
+        )
         {
             mappingOrigin = "Flattened";
             return true;
@@ -262,24 +380,37 @@ internal static class PropertyMatcher
         return false;
     }
 
-    private static bool TryFlattenNullSafe(string targetName, ITypeSymbol targetType, ITypeSymbol sourceType, string sourceName,
-        out string? expression, out List<string>? navigationSegments, out bool requiresNullGuard, int depth = 0)
+    private static bool TryFlattenNullSafe(
+        string targetName,
+        ITypeSymbol targetType,
+        ITypeSymbol sourceType,
+        string sourceName,
+        out string? expression,
+        out List<string>? navigationSegments,
+        out bool requiresNullGuard,
+        int depth = 0
+    )
     {
         expression = null;
         navigationSegments = null;
         requiresNullGuard = false;
-        if (depth > 2) return false; // Cap at 4 levels of navigation (depth + 2 segments)
+        if (depth > 2)
+            return false; // Cap at 4 levels of navigation (depth + 2 segments)
 
         var sourceProps = sourceType.GetMembers().OfType<IPropertySymbol>().ToList();
 
         foreach (var sProp in sourceProps)
         {
-            if (!targetName.StartsWith(sProp.Name, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!targetName.StartsWith(sProp.Name, StringComparison.OrdinalIgnoreCase))
+                continue;
             var remaining = targetName.Substring(sProp.Name.Length);
-            if (remaining.Length == 0) continue;
+            if (remaining.Length == 0)
+                continue;
 
             // Direct match at this level
-            var nestedProp = sProp.Type.GetMembers().OfType<IPropertySymbol>()
+            var nestedProp = sProp
+                .Type.GetMembers()
+                .OfType<IPropertySymbol>()
                 .FirstOrDefault(p => p.Name.Equals(remaining, StringComparison.OrdinalIgnoreCase));
 
             if (nestedProp != null && SymbolEqualityComparer.Default.Equals(nestedProp.Type, targetType))
@@ -291,8 +422,18 @@ internal static class PropertyMatcher
             }
 
             // Recurse deeper
-            if (TryFlattenNullSafe(remaining, targetType, sProp.Type, $"{sourceName}.{sProp.Name}",
-                out expression, out navigationSegments, out requiresNullGuard, depth + 1))
+            if (
+                TryFlattenNullSafe(
+                    remaining,
+                    targetType,
+                    sProp.Type,
+                    $"{sourceName}.{sProp.Name}",
+                    out expression,
+                    out navigationSegments,
+                    out requiresNullGuard,
+                    depth + 1
+                )
+            )
             {
                 requiresNullGuard = true;
                 return true;
@@ -303,9 +444,12 @@ internal static class PropertyMatcher
 
     private static bool TryFindMapper(ITypeSymbol s, ITypeSymbol t, List<IMethodSymbol> methods, out string? name)
     {
-        name = methods.FirstOrDefault(m => 
-            SymbolEqualityComparer.Default.Equals(m.Parameters[0].Type, s) && 
-            SymbolEqualityComparer.Default.Equals(m.ReturnType, t))?.Name;
+        name = methods
+            .FirstOrDefault(m =>
+                SymbolEqualityComparer.Default.Equals(m.Parameters[0].Type, s)
+                && SymbolEqualityComparer.Default.Equals(m.ReturnType, t)
+            )
+            ?.Name;
         return name != null;
     }
 }

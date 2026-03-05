@@ -17,9 +17,12 @@ public class ParseResult : IEquatable<ParseResult>
 
     public bool Equals(ParseResult other)
     {
-        if (other is null) return false;
-        if (Mapper is null != (other.Mapper is null)) return false;
-        if (Mapper is not null && !Mapper.Equals(other.Mapper)) return false;
+        if (other is null)
+            return false;
+        if (Mapper is null != (other.Mapper is null))
+            return false;
+        if (Mapper is not null && !Mapper.Equals(other.Mapper))
+            return false;
         return DiagnosticsEqual(Diagnostics, other.Diagnostics);
     }
 
@@ -40,12 +43,16 @@ public class ParseResult : IEquatable<ParseResult>
 
     private static bool DiagnosticsEqual(List<Diagnostic> a, List<Diagnostic> b)
     {
-        if (a.Count != b.Count) return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
         {
-            if (a[i].Id != b[i].Id) return false;
-            if (a[i].GetMessage() != b[i].GetMessage()) return false;
-            if (a[i].Severity != b[i].Severity) return false;
+            if (a[i].Id != b[i].Id)
+                return false;
+            if (a[i].GetMessage() != b[i].GetMessage())
+                return false;
+            if (a[i].Severity != b[i].Severity)
+                return false;
         }
         return true;
     }

@@ -45,7 +45,7 @@ public class StaticMapperTests
             Id = 1,
             Message = "Server started",
             Timestamp = new DateTime(2025, 6, 15, 14, 30, 45),
-            Level = "Info"
+            Level = "Info",
         };
 
         var dto = LogMapper.MapLog(entry);
@@ -64,7 +64,7 @@ public class StaticMapperTests
             Id = 2,
             Message = "Request received",
             Timestamp = new DateTime(2025, 6, 15, 9, 0, 0),
-            Level = "Debug"
+            Level = "Debug",
         };
 
         // Extension method generated: entry.MapLog()
@@ -80,9 +80,27 @@ public class StaticMapperTests
     {
         async IAsyncEnumerable<LogEntry> GenerateEntries()
         {
-            yield return new LogEntry { Id = 1, Message = "First", Timestamp = DateTime.Now, Level = "Info" };
-            yield return new LogEntry { Id = 2, Message = "Second", Timestamp = DateTime.Now, Level = "Warn" };
-            yield return new LogEntry { Id = 3, Message = "Third", Timestamp = DateTime.Now, Level = "Error" };
+            yield return new LogEntry
+            {
+                Id = 1,
+                Message = "First",
+                Timestamp = DateTime.Now,
+                Level = "Info",
+            };
+            yield return new LogEntry
+            {
+                Id = 2,
+                Message = "Second",
+                Timestamp = DateTime.Now,
+                Level = "Warn",
+            };
+            yield return new LogEntry
+            {
+                Id = 3,
+                Message = "Third",
+                Timestamp = DateTime.Now,
+                Level = "Error",
+            };
             await Task.CompletedTask;
         }
 
@@ -104,12 +122,18 @@ public class StaticMapperTests
     public async Task AsyncStreaming_ShouldSupportCancellation()
     {
         async IAsyncEnumerable<LogEntry> InfiniteEntries(
-            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default
+        )
         {
             int id = 0;
             while (!ct.IsCancellationRequested)
             {
-                yield return new LogEntry { Id = id++, Message = $"Entry {id}", Timestamp = DateTime.Now };
+                yield return new LogEntry
+                {
+                    Id = id++,
+                    Message = $"Entry {id}",
+                    Timestamp = DateTime.Now,
+                };
                 await Task.Yield();
             }
         }

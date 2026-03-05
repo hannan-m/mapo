@@ -18,7 +18,8 @@ public class NullGuardTests : MapoVerifier
     {
         // int AddressZip flattened from source.Address.Zip
         // The nullable chain produces int? so we need ?? default(int) or ?? default
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Address { public int Zip { get; set; } }
@@ -29,10 +30,8 @@ public class T { public int AddressZip { get; set; } }
         var result = RunGenerator(source);
         var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
 
-        generated.Should().Contain("Address?.Zip",
-            "should use null-conditional navigation for intermediate object");
-        generated.Should().Contain("?? default",
-            "value type target needs ?? default to coalesce from nullable chain");
+        generated.Should().Contain("Address?.Zip", "should use null-conditional navigation for intermediate object");
+        generated.Should().Contain("?? default", "value type target needs ?? default to coalesce from nullable chain");
         AssertGeneratedCodeCompiles(source);
     }
 
@@ -41,7 +40,8 @@ public class T { public int AddressZip { get; set; } }
     {
         // string AddressCity flattened from source.Address.City
         // The nullable chain produces string? which is assignable to string
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Address { public string City { get; set; } = """"; }
@@ -52,10 +52,8 @@ public class T { public string AddressCity { get; set; } = """"; }
         var result = RunGenerator(source);
         var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
 
-        generated.Should().Contain("Address?.City",
-            "should use null-conditional navigation");
-        generated.Should().NotContain("?? default",
-            "reference type target does NOT need ?? default");
+        generated.Should().Contain("Address?.City", "should use null-conditional navigation");
+        generated.Should().NotContain("?? default", "reference type target does NOT need ?? default");
         AssertGeneratedCodeCompiles(source);
     }
 
@@ -63,7 +61,8 @@ public class T { public string AddressCity { get; set; } = """"; }
     public void Flattened_ValueType_CompilesAndRuns()
     {
         // End-to-end: flattened int property with null intermediate should produce default(int) = 0
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -94,7 +93,8 @@ public static class TestRunner
     public void Flattened_ReferenceType_CompilesAndRuns()
     {
         // End-to-end: flattened string property with null intermediate should produce null
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -125,7 +125,8 @@ public static class TestRunner
     public void Flattened_BoolValueType_ShouldCompile()
     {
         // bool AddressIsActive flattened from source.Address.IsActive
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Address { public bool IsActive { get; set; } }
@@ -136,8 +137,7 @@ public class T { public bool AddressIsActive { get; set; } }
         var result = RunGenerator(source);
         var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
 
-        generated.Should().Contain("Address?.IsActive ?? default",
-            "bool is a value type and needs ?? default");
+        generated.Should().Contain("Address?.IsActive ?? default", "bool is a value type and needs ?? default");
         AssertGeneratedCodeCompiles(source);
     }
 
@@ -145,7 +145,8 @@ public class T { public bool AddressIsActive { get; set; } }
     public void Flattened_MixedTypes_AllCompile()
     {
         // Multiple flattened properties with different types in a single mapper
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Info
@@ -179,7 +180,8 @@ public class T
     [Fact]
     public void Flattened_MixedTypes_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -224,7 +226,8 @@ public static class TestRunner
     public void NonFlattened_DirectProperty_NoNullGuard()
     {
         // Direct property mapping should NOT get null-guard treatment
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public string Name { get; set; } = """"; }

@@ -11,7 +11,8 @@ public class NullHandlingTests : MapoVerifier
     [Fact]
     public void NullSource_ThrowsArgumentNullException()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -37,7 +38,8 @@ public static class TestRunner
     public void NullSource_UpdateMapping_ReturnsEarly()
     {
         // Update mapping with null source should just return (no exception, no crash)
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -61,7 +63,8 @@ public static class TestRunner
     [Fact]
     public void NullSource_Collection_ThrowsArgumentNullException()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 using System.Collections.Generic;
@@ -87,7 +90,8 @@ public static class TestRunner
     [Fact]
     public void NonNullSource_WorksNormally()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

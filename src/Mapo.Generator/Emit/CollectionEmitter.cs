@@ -7,20 +7,27 @@ namespace Mapo.Generator.Emit;
 
 internal static class CollectionEmitter
 {
-    public static void EmitLoopBlock(CodeWriter cw, string varName, CollectionLoopInfo loop, MapperInfo mapper,
-        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns)
+    public static void EmitLoopBlock(
+        CodeWriter cw,
+        string varName,
+        CollectionLoopInfo loop,
+        MapperInfo mapper,
+        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns
+    )
     {
         var memberPrefix = mapper.IsStatic ? "" : "this.";
         var internalName = mapper.UseReferenceTracking ? loop.ItemMapperName + "Internal" : loop.ItemMapperName;
         var itemExpr = loop.ProjectionBody ?? "_item";
         string mapCall;
-        
+
         if (mapper.UseReferenceTracking)
             mapCall = $"{memberPrefix}{internalName}({itemExpr}, _context)";
         else
             mapCall = $"{memberPrefix}{internalName}({itemExpr})";
 
-        cw.AppendLine($"var {varName} = new List<{loop.TargetItemTypeDisplay}>({loop.SourceCollectionExpr}.{loop.CountMember});");
+        cw.AppendLine(
+            $"var {varName} = new List<{loop.TargetItemTypeDisplay}>({loop.SourceCollectionExpr}.{loop.CountMember});"
+        );
         cw.AppendLine($"for (var _i = 0; _i < {loop.SourceCollectionExpr}.{loop.CountMember}; _i++)");
         using (cw.Block())
         {
@@ -29,17 +36,21 @@ internal static class CollectionEmitter
         }
     }
 
-    public static void Emit(CodeWriter cw, MethodMapping mapping, MapperInfo mapper,
-        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns)
+    public static void Emit(
+        CodeWriter cw,
+        MethodMapping mapping,
+        MapperInfo mapper,
+        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns
+    )
     {
         var sItem = mapping.SourceItemTypeDisplayString!;
         var tItem = mapping.TargetItemTypeDisplayString!;
         var paramsList = string.Join(", ", mapping.Parameters);
         var internalParams = mapper.UseReferenceTracking ? paramsList + ", MappingContext _context" : paramsList;
 
-        var itemMapperName = mapper.Mappings.FirstOrDefault(m =>
-            m.SourceTypeDisplayString == sItem &&
-            m.TargetTypeDisplayString == tItem)?.MethodName;
+        var itemMapperName = mapper
+            .Mappings.FirstOrDefault(m => m.SourceTypeDisplayString == sItem && m.TargetTypeDisplayString == tItem)
+            ?.MethodName;
 
         if (itemMapperName == null)
         {
@@ -50,29 +61,46 @@ internal static class CollectionEmitter
         string accessibility = mapping.IsUserDeclared ? "public " : "internal ";
 
         cw.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]");
-        cw.AppendLine($"{accessibility}{(mapper.IsStatic ? "static " : "")}{partialKeyword}{mapping.TargetTypeDisplayString} {mapping.MethodName}({paramsList})");
+        cw.AppendLine(
+            $"{accessibility}{(mapper.IsStatic ? "static " : "")}{partialKeyword}{mapping.TargetTypeDisplayString} {mapping.MethodName}({paramsList})"
+        );
         using (cw.Block())
         {
             if (mapper.UseReferenceTracking)
             {
-                cw.AppendLine($"return {mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))}, new MappingContext());");
+                cw.AppendLine(
+                    $"return {mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))}, new MappingContext());"
+                );
             }
             else
             {
-                cw.AppendLine($"return {mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))});");
+                cw.AppendLine(
+                    $"return {mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))});"
+                );
             }
         }
 
-        cw.AppendLine($"private {(mapper.IsStatic ? "static " : "")}{mapping.TargetTypeDisplayString} {mapping.MethodName}Internal({internalParams})");
+        cw.AppendLine(
+            $"private {(mapper.IsStatic ? "static " : "")}{mapping.TargetTypeDisplayString} {mapping.MethodName}Internal({internalParams})"
+        );
         using (cw.Block())
         {
             EmitInternalBody(cw, mapping, mapper, sItem, tItem, itemMapperName);
         }
     }
 
-    private static void EmitInternalBody(CodeWriter cw, MethodMapping mapping, MapperInfo mapper, string sItem, string tItem, string itemMapperName)
+    private static void EmitInternalBody(
+        CodeWriter cw,
+        MethodMapping mapping,
+        MapperInfo mapper,
+        string sItem,
+        string tItem,
+        string itemMapperName
+    )
     {
-        cw.AppendLine($"if ({mapping.SourceName} == null) throw new ArgumentNullException(nameof({mapping.SourceName}));");
+        cw.AppendLine(
+            $"if ({mapping.SourceName} == null) throw new ArgumentNullException(nameof({mapping.SourceName}));"
+        );
 
         var memberPrefix = mapper.IsStatic ? "" : "this.";
         var callArgs = mapper.UseReferenceTracking ? "item, _context" : "item";
@@ -80,7 +108,11 @@ internal static class CollectionEmitter
 
         var srcType = mapping.SourceTypeDisplayString;
 
-        if (srcType.StartsWith("System.Collections.Generic.List<") || srcType.StartsWith("List<") || srcType.StartsWith("global::System.Collections.Generic.List<"))
+        if (
+            srcType.StartsWith("System.Collections.Generic.List<")
+            || srcType.StartsWith("List<")
+            || srcType.StartsWith("global::System.Collections.Generic.List<")
+        )
         {
             cw.AppendLine($"var list = new List<{tItem}>({mapping.SourceName}.Count);");
             cw.AppendLine($"for (int i = 0; i < {mapping.SourceName}.Count; i++)");

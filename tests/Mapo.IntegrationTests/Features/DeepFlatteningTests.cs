@@ -59,13 +59,9 @@ public class DeepFlatteningTests
             {
                 Street = "123 Main St",
                 City = "San Francisco",
-                Country = "USA"
+                Country = "USA",
             },
-            PrimaryContact = new CompanyContact
-            {
-                Name = "John CEO",
-                Email = "ceo@acme.com"
-            }
+            PrimaryContact = new CompanyContact { Name = "John CEO", Email = "ceo@acme.com" },
         };
 
         var dto = mapper.Map(company);
@@ -90,13 +86,9 @@ public class DeepFlatteningTests
             {
                 Street = "456 Oak Ave",
                 City = "London",
-                Country = "UK"
+                Country = "UK",
             },
-            PrimaryContact = new CompanyContact
-            {
-                Name = "Jane CTO",
-                Email = "cto@widgets.co.uk"
-            }
+            PrimaryContact = new CompanyContact { Name = "Jane CTO", Email = "cto@widgets.co.uk" },
         };
 
         var dto = mapper.Map(company);

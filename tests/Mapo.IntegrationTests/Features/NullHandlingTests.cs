@@ -57,7 +57,7 @@ public class NullHandlingTests
         {
             Name = "Test",
             Inner = null,
-            NullableValue = null
+            NullableValue = null,
         };
 
         var dest = mapper.Map(source);
@@ -75,7 +75,7 @@ public class NullHandlingTests
         {
             Name = "Test",
             Inner = new NullableInner { Value = "InnerVal" },
-            NullableValue = "NotNull"
+            NullableValue = "NotNull",
         };
 
         var dest = mapper.Map(source);

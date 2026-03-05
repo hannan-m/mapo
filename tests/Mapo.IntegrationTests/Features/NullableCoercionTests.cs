@@ -29,7 +29,12 @@ public class NullableCoercionTests
     [Fact]
     public void NullValues_CoerceToDefault()
     {
-        var src = new NullableValueSource { Score = null, Created = null, TraceId = null };
+        var src = new NullableValueSource
+        {
+            Score = null,
+            Created = null,
+            TraceId = null,
+        };
         var target = NullableCoercionMapper.Map(src);
 
         target.Score.Should().Be(0);
@@ -42,7 +47,12 @@ public class NullableCoercionTests
     {
         var now = DateTime.UtcNow;
         var guid = Guid.NewGuid();
-        var src = new NullableValueSource { Score = 42, Created = now, TraceId = guid };
+        var src = new NullableValueSource
+        {
+            Score = 42,
+            Created = now,
+            TraceId = guid,
+        };
         var target = NullableCoercionMapper.Map(src);
 
         target.Score.Should().Be(42);

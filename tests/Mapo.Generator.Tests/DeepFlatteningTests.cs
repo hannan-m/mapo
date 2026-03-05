@@ -8,7 +8,8 @@ public class DeepFlatteningTests : MapoVerifier
     [Fact]
     public void TwoLevelFlattening_GeneratesCorrectCode()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Inner { public string Name { get; set; } = """"; }
@@ -28,7 +29,8 @@ public class T { public string MiddleInnerName { get; set; } = """"; }
     [Fact]
     public void ThreeLevelFlattening_GeneratesCorrectCode()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class L3 { public string Value { get; set; } = """"; }
@@ -51,7 +53,8 @@ public class T { public string L1L2L3Value { get; set; } = """"; }
     public void FourLevelFlattening_StopsAtDepthCap()
     {
         // 5 levels deep: should NOT match (depth cap is 4)
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class L4 { public string X { get; set; } = """"; }
@@ -70,7 +73,8 @@ public class T { public string L1L2L3L4X { get; set; } = """"; }
     [Fact]
     public void DeepFlattening_WithNullable_GeneratesNullGuards()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Country { public string Name { get; set; } = """"; }
@@ -88,7 +92,8 @@ public class T { public string AddressCountryName { get; set; } = """"; }
     [Fact]
     public void TwoLevelFlattening_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

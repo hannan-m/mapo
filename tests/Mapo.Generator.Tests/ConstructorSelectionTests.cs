@@ -11,7 +11,8 @@ public class ConstructorSelectionTests : MapoVerifier
     [Fact]
     public void LargestConstructor_Selected()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } public string Name { get; set; } = """"; }
@@ -33,7 +34,8 @@ public class T
     public void ConstructorWithBestMatchingParams_Preferred()
     {
         // Two constructors with same parameter count — the one whose param names match source properties wins
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -63,7 +65,8 @@ public static class TestRunner
     [Fact]
     public void RecordConstructor_MatchedByName()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

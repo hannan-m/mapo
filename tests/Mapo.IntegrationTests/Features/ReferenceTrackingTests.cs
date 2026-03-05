@@ -38,6 +38,7 @@ public class DepartmentDto
 public partial class OrganizationMapper
 {
     public partial EmployeeDto Map(Employee emp);
+
     public partial DepartmentDto Map(Department dept);
 }
 
@@ -51,7 +52,12 @@ public class ReferenceTrackingTests
         var empId = Guid.NewGuid();
 
         var dept = new Department { Id = deptId, Name = "Engineering" };
-        var emp = new Employee { Id = empId, Name = "Alice", Department = dept };
+        var emp = new Employee
+        {
+            Id = empId,
+            Name = "Alice",
+            Department = dept,
+        };
         dept.Employees.Add(emp);
 
         // Map the employee
@@ -62,11 +68,13 @@ public class ReferenceTrackingTests
         empDto.Department.Should().NotBeNull();
         empDto.Department.Name.Should().Be("Engineering");
 
-        // The department's employee list should contain an employee 
+        // The department's employee list should contain an employee
         // that is the EXACT SAME reference as empDto.
         empDto.Department.Employees.Should().HaveCount(1);
         var innerEmpDto = empDto.Department.Employees[0];
-        
-        ReferenceEquals(empDto, innerEmpDto).Should().BeTrue("Reference tracking should return the cached instance for circular references.");
+
+        ReferenceEquals(empDto, innerEmpDto)
+            .Should()
+            .BeTrue("Reference tracking should return the cached instance for circular references.");
     }
 }

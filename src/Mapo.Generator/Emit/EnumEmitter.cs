@@ -6,7 +6,9 @@ internal static class EnumEmitter
 {
     public static void Emit(CodeWriter cw, MethodMapping mapping, bool isStatic, string paramsList)
     {
-        cw.AppendLine($"internal {(isStatic ? "static " : "")}{mapping.TargetTypeDisplayString} {mapping.MethodName}({paramsList})");
+        cw.AppendLine(
+            $"internal {(isStatic ? "static " : "")}{mapping.TargetTypeDisplayString} {mapping.MethodName}({paramsList})"
+        );
         using (cw.Block())
         {
             cw.AppendLine($"return {mapping.SourceName} switch");

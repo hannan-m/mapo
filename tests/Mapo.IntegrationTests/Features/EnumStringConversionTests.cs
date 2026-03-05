@@ -5,7 +5,13 @@ using Xunit;
 namespace Mapo.IntegrationTests.Features;
 
 // Types for enum↔string conversion
-public enum TaskPriority { Low, Medium, High, Critical }
+public enum TaskPriority
+{
+    Low,
+    Medium,
+    High,
+    Critical,
+}
 
 public class TaskEntity
 {
@@ -35,6 +41,7 @@ public class TaskOutput
 public static partial class EnumStringMapper
 {
     public static partial TaskDto MapToDto(TaskEntity entity);
+
     public static partial TaskOutput MapToOutput(TaskInput input);
 }
 

@@ -11,7 +11,8 @@ public class ExtensionClassTests : MapoVerifier
     [Fact]
     public void NonStaticMapper_NoExtensionClass()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -27,7 +28,8 @@ public partial class M { public partial T Map(S s); }";
     [Fact]
     public void StaticMapper_WithUserDeclaredMethod_HasExtensionClass()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -45,7 +47,8 @@ public static partial class M { public static partial T Map(S s); }";
     public void AutoDiscoveredMethods_NotInExtensionClass()
     {
         // Auto-discovered nested mapper is private — should not appear in extension class
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class A { public int X { get; set; } }

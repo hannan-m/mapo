@@ -25,8 +25,7 @@ public partial class ConfigMapper
 
     static void Configure(IMapConfig<ConfigSource, ConfigDest> config)
     {
-        config.Map(d => d.DisplayName, s => s.Name)
-              .Ignore(d => d.SecretData);
+        config.Map(d => d.DisplayName, s => s.Name).Ignore(d => d.SecretData);
     }
 }
 
@@ -40,14 +39,14 @@ public class StrictMappingTests
         {
             Name = "Public Name",
             Description = "Public Description",
-            SecretData = "Hidden Password"
+            SecretData = "Hidden Password",
         };
 
         var dest = mapper.Map(source);
 
         dest.DisplayName.Should().Be("Public Name");
         dest.Description.Should().Be("Public Description");
-        
+
         // Ignored property shouldn't be mapped
         dest.SecretData.Should().Be("");
     }

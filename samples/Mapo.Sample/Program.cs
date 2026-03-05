@@ -7,9 +7,34 @@ namespace Mapo.Sample;
 // DOMAIN MODELS
 // =============================================================================
 
-public enum OrderStatus { Draft, Confirmed, Processing, Shipped, Delivered, Cancelled }
-public enum OrderStatusLabel { Draft, Confirmed, Processing, Shipped, Delivered, Cancelled }
-public enum MembershipTier { Free, Bronze, Silver, Gold, Platinum }
+public enum OrderStatus
+{
+    Draft,
+    Confirmed,
+    Processing,
+    Shipped,
+    Delivered,
+    Cancelled,
+}
+
+public enum OrderStatusLabel
+{
+    Draft,
+    Confirmed,
+    Processing,
+    Shipped,
+    Delivered,
+    Cancelled,
+}
+
+public enum MembershipTier
+{
+    Free,
+    Bronze,
+    Silver,
+    Gold,
+    Platinum,
+}
 
 // Deep nesting for multi-level flattening
 public class Country
@@ -103,31 +128,27 @@ public class CustomerDto
 {
     public required string FullName { get; init; }
     public required string Email { get; init; }
-    public string Tier { get; init; } = "";                              // Enum -> string auto
-    public int LoyaltyPoints { get; init; }                              // Nullable auto-coercion (int? -> int)
-    public string ShippingAddressCity { get; init; } = "";               // 2-level flattening
-    public string ShippingAddressRegionName { get; init; } = "";         // 3-level flattening
-    public string ShippingAddressRegionCountryName { get; init; } = "";  // 4-level flattening
+    public string Tier { get; init; } = ""; // Enum -> string auto
+    public int LoyaltyPoints { get; init; } // Nullable auto-coercion (int? -> int)
+    public string ShippingAddressCity { get; init; } = ""; // 2-level flattening
+    public string ShippingAddressRegionName { get; init; } = ""; // 3-level flattening
+    public string ShippingAddressRegionCountryName { get; init; } = ""; // 4-level flattening
 }
 
 // Record with constructor (constructor mapping)
-public record OrderLineDto(
-    string ProductName,
-    string ProductSKU,
-    int Quantity,
-    decimal LineTotal);
+public record OrderLineDto(string ProductName, string ProductSKU, int Quantity, decimal LineTotal);
 
 public record OrderDto
 {
     public Guid Id { get; init; }
     public string OrderNumber { get; init; } = "";
-    public OrderStatusLabel Status { get; init; }                 // Enum -> enum auto
-    public string PlacedAt { get; init; } = "";                   // DateTime -> string via AddConverter
-    public string CustomerName { get; init; } = "";               // Computed
-    public decimal TotalAmount { get; init; }                     // Computed
-    public string TotalDisplay { get; init; } = "";               // DI: formatter.Format(...)
-    public List<OrderLineDto> Lines { get; init; } = [];          // Collection mapping
-    public string ShippingCity { get; init; } = "";               // Custom mapping
+    public OrderStatusLabel Status { get; init; } // Enum -> enum auto
+    public string PlacedAt { get; init; } = ""; // DateTime -> string via AddConverter
+    public string CustomerName { get; init; } = ""; // Computed
+    public decimal TotalAmount { get; init; } // Computed
+    public string TotalDisplay { get; init; } = ""; // DI: formatter.Format(...)
+    public List<OrderLineDto> Lines { get; init; } = []; // Collection mapping
+    public string ShippingCity { get; init; } = ""; // Custom mapping
 }
 
 // Simple DTO for static mapper
@@ -167,7 +188,9 @@ public class CurrencyFormatter : ICurrencyFormatter
 public static partial class ProductStaticMapper
 {
     public static partial ProductSummaryDto MapToDto(Product product);
+
     public static partial ProductSummary MapToSummary(Product product);
+
     public static partial Product MapFromSummary(ProductSummary summary);
 
     static void Configure(IMapConfig<Product, ProductSummaryDto> config)
@@ -193,10 +216,15 @@ public partial class ECommerceMapper
     }
 
     public partial CustomerDto MapCustomer(Customer customer);
+
     public partial OrderDto MapOrder(Order order);
+
     public partial List<OrderDto> MapOrders(List<Order> orders);
+
     public partial OrderLineDto MapOrderLine(OrderLine line);
+
     public partial void ApplyUpdate(ProductUpdateDto source, Product target);
+
     public partial OrderFilter MapFilter(OrderFilterDto filter);
 
     static void Configure(IMapConfig<Customer, CustomerDto> config)
@@ -213,9 +241,10 @@ public partial class ECommerceMapper
 
     static void Configure(IMapConfig<OrderLine, OrderLineDto> config)
     {
-        config.Map(d => d.ProductName, s => s.Product.Name)
-              .Map(d => d.ProductSKU, s => s.Product.SKU)
-              .Map(d => d.LineTotal, s => (s.Product.UnitPrice - s.Discount) * s.Quantity);
+        config
+            .Map(d => d.ProductName, s => s.Product.Name)
+            .Map(d => d.ProductSKU, s => s.Product.SKU)
+            .Map(d => d.LineTotal, s => (s.Product.UnitPrice - s.Discount) * s.Quantity);
     }
 
     static void Configure(IMapConfig<Order, OrderDto> config, ICurrencyFormatter formatter)
@@ -223,7 +252,10 @@ public partial class ECommerceMapper
         config
             .Map(d => d.CustomerName, s => s.Customer.FirstName + " " + s.Customer.LastName)
             .Map(d => d.TotalAmount, s => s.Lines.Sum(l => (l.Product.UnitPrice - l.Discount) * l.Quantity))
-            .Map(d => d.TotalDisplay, s => formatter.Format(s.Lines.Sum(l => (l.Product.UnitPrice - l.Discount) * l.Quantity)))
+            .Map(
+                d => d.TotalDisplay,
+                s => formatter.Format(s.Lines.Sum(l => (l.Product.UnitPrice - l.Discount) * l.Quantity))
+            )
             .Map(d => d.ShippingCity, s => s.ShippingAddress.City)
             // Global type converter: all DateTime -> string properties in this mapping
             .AddConverter<DateTime, string>(dt => dt.ToString("yyyy-MM-dd"));
@@ -238,10 +270,7 @@ public partial class ECommerceMapper
     // Update mapping: preserve Id, SKU, InternalNotes, CreatedAt
     static void Configure(IMapConfig<ProductUpdateDto, Product> config)
     {
-        config.Ignore(d => d.Id)
-              .Ignore(d => d.SKU)
-              .Ignore(d => d.InternalNotes)
-              .Ignore(d => d.CreatedAt);
+        config.Ignore(d => d.Id).Ignore(d => d.SKU).Ignore(d => d.InternalNotes).Ignore(d => d.CreatedAt);
     }
 }
 
@@ -265,7 +294,7 @@ public class Program
             UnitPrice = 29.99m,
             InternalNotes = "Supplier: Acme Corp",
             CreatedAt = new DateTime(2025, 1, 15),
-            Tags = ["electronics", "peripherals", "wireless"]
+            Tags = ["electronics", "peripherals", "wireless"],
         };
 
         var customer = new Customer
@@ -284,9 +313,9 @@ public class Program
                 Region = new Region
                 {
                     Name = "Pacific Northwest",
-                    Country = new Country { Name = "United States", Code = "US" }
-                }
-            }
+                    Country = new Country { Name = "United States", Code = "US" },
+                },
+            },
         };
 
         var order = new Order
@@ -299,14 +328,24 @@ public class Program
             ShippingAddress = customer.ShippingAddress,
             Lines =
             [
-                new OrderLine { Product = product, Quantity = 2, Discount = 5.00m },
                 new OrderLine
                 {
-                    Product = new Product { SKU = "KB-002", Name = "Mechanical Keyboard", UnitPrice = 89.99m },
+                    Product = product,
+                    Quantity = 2,
+                    Discount = 5.00m,
+                },
+                new OrderLine
+                {
+                    Product = new Product
+                    {
+                        SKU = "KB-002",
+                        Name = "Mechanical Keyboard",
+                        UnitPrice = 89.99m,
+                    },
                     Quantity = 1,
-                    Discount = 0m
-                }
-            ]
+                    Discount = 0m,
+                },
+            ],
         };
 
         var formatter = new CurrencyFormatter();
@@ -338,9 +377,11 @@ public class Program
         Console.WriteLine($"  1250 (int?) -> {customerDto.LoyaltyPoints} (int)");
         var nullCustomer = new Customer
         {
-            FirstName = "No", LastName = "Points", Email = "n@a.com",
+            FirstName = "No",
+            LastName = "Points",
+            Email = "n@a.com",
             LoyaltyPoints = null,
-            ShippingAddress = new Address { Region = new Region { Country = new Country() } }
+            ShippingAddress = new Address { Region = new Region { Country = new Country() } },
         };
         var nullDto = mapper.MapCustomer(nullCustomer);
         Console.WriteLine($"  null (int?) -> {nullDto.LoyaltyPoints} (default)");
@@ -349,7 +390,9 @@ public class Program
         Console.WriteLine("\n-- 6. Deep Flattening (2-4 levels) --");
         Console.WriteLine($"  2-level: ShippingAddressCity = {customerDto.ShippingAddressCity}");
         Console.WriteLine($"  3-level: ShippingAddressRegionName = {customerDto.ShippingAddressRegionName}");
-        Console.WriteLine($"  4-level: ShippingAddressRegionCountryName = {customerDto.ShippingAddressRegionCountryName}");
+        Console.WriteLine(
+            $"  4-level: ShippingAddressRegionCountryName = {customerDto.ShippingAddressRegionCountryName}"
+        );
 
         // ── 7. Custom Computed Mappings ──
         Console.WriteLine("\n-- 7. Custom Computed Mappings --");
@@ -387,7 +430,7 @@ public class Program
         var products = new List<Product>
         {
             product,
-            new Product { Name = "USB Hub", UnitPrice = 45.50m }
+            new Product { Name = "USB Hub", UnitPrice = 45.50m },
         };
         int streamCount = 0;
         await foreach (var dto in ToAsyncEnumerable(products).MapToDtoStreamAsync())
@@ -412,7 +455,7 @@ public class Program
             Name = "Wireless Mouse Pro",
             Description = "Upgraded ergonomic mouse",
             UnitPrice = 39.99m,
-            Tags = ["electronics", "pro"]
+            Tags = ["electronics", "pro"],
         };
         mapper.ApplyUpdate(update, product);
         Console.WriteLine($"  After:  {product.Name}, {product.UnitPrice:C}, SKU={product.SKU} (preserved)");
@@ -427,7 +470,8 @@ public class Program
 
     static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(
         IEnumerable<T> items,
-        [EnumeratorCancellation] CancellationToken ct = default)
+        [EnumeratorCancellation] CancellationToken ct = default
+    )
     {
         foreach (var item in items)
         {

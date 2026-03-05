@@ -18,7 +18,8 @@ public class ConstructorArg : IEquatable<ConstructorArg>
 
     public bool Equals(ConstructorArg other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return Expression == other.Expression
             && MappingOrigin == other.MappingOrigin
             && Equals(CollectionLoop, other.CollectionLoop);
@@ -77,7 +78,8 @@ public class MethodMapping : IEquatable<MethodMapping>
         List<DerivedMappingInfo>? derivedMappings = null,
         bool isCollectionMapping = false,
         string? sourceItemTypeDisplayString = null,
-        string? targetItemTypeDisplayString = null)
+        string? targetItemTypeDisplayString = null
+    )
     {
         MethodName = methodName;
         SourceTypeDisplayString = sourceTypeDisplayString;
@@ -102,7 +104,8 @@ public class MethodMapping : IEquatable<MethodMapping>
 
     public bool Equals(MethodMapping other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return MethodName == other.MethodName
             && SourceTypeDisplayString == other.SourceTypeDisplayString
             && TargetTypeDisplayString == other.TargetTypeDisplayString
@@ -147,49 +150,68 @@ public class MethodMapping : IEquatable<MethodMapping>
 
     private static bool CtorArgListEquals(List<ConstructorArg> a, List<ConstructorArg> b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (!a[i].Equals(b[i])) return false;
+            if (!a[i].Equals(b[i]))
+                return false;
         return true;
     }
 
     private static bool ListEquals(List<string> a, List<string> b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (a[i] != b[i]) return false;
+            if (a[i] != b[i])
+                return false;
         return true;
     }
 
     private static bool PropListEquals(List<PropertyMapping> a, List<PropertyMapping> b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (!a[i].Equals(b[i])) return false;
+            if (!a[i].Equals(b[i]))
+                return false;
         return true;
     }
 
     private static bool DerivedListEquals(List<DerivedMappingInfo> a, List<DerivedMappingInfo> b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (!a[i].Equals(b[i])) return false;
+            if (!a[i].Equals(b[i]))
+                return false;
         return true;
     }
 
     private static bool DictEquals(Dictionary<string, string> a, Dictionary<string, string> b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         foreach (var kvp in a)
         {
             if (!b.TryGetValue(kvp.Key, out var val) || val != kvp.Value)

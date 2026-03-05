@@ -1,8 +1,8 @@
+using FluentAssertions;
+using Mapo.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using FluentAssertions;
 using Xunit;
-using Mapo.Generator.Models;
 
 namespace Mapo.Generator.Tests;
 
@@ -23,18 +23,24 @@ public class IncrementalCachingTests : MapoVerifier
         var diag1 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         var diag2 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyB", "TypeX");
+            "PropertyB",
+            "TypeX"
+        );
 
         var result1 = new ParseResult(null, new List<Diagnostic> { diag1 });
         var result2 = new ParseResult(null, new List<Diagnostic> { diag2 });
 
-        result1.Equals(result2).Should().BeFalse(
-            "ParseResult with different diagnostic messages should not be equal even if count matches");
+        result1
+            .Equals(result2)
+            .Should()
+            .BeFalse("ParseResult with different diagnostic messages should not be equal even if count matches");
     }
 
     [Fact]
@@ -43,18 +49,21 @@ public class IncrementalCachingTests : MapoVerifier
         var diag1 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         var diag2 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         var result1 = new ParseResult(null, new List<Diagnostic> { diag1 });
         var result2 = new ParseResult(null, new List<Diagnostic> { diag2 });
 
-        result1.Equals(result2).Should().BeTrue(
-            "ParseResult with identical diagnostic content should be equal");
+        result1.Equals(result2).Should().BeTrue("ParseResult with identical diagnostic content should be equal");
     }
 
     [Fact]
@@ -63,19 +72,21 @@ public class IncrementalCachingTests : MapoVerifier
         var diag1 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         // Create an error-severity version (same descriptor but elevated)
         var diag2 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.MapperOnNonPartialClass,
             Location.None,
-            "MyMapper");
+            "MyMapper"
+        );
 
         var result1 = new ParseResult(null, new List<Diagnostic> { diag1 });
         var result2 = new ParseResult(null, new List<Diagnostic> { diag2 });
 
-        result1.Equals(result2).Should().BeFalse(
-            "ParseResult with different diagnostic IDs should not be equal");
+        result1.Equals(result2).Should().BeFalse("ParseResult with different diagnostic IDs should not be equal");
     }
 
     [Fact]
@@ -84,7 +95,9 @@ public class IncrementalCachingTests : MapoVerifier
         var diag = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         var result1 = new ParseResult(null, new List<Diagnostic> { diag });
         var result2 = new ParseResult(null, new List<Diagnostic> { diag, diag });
@@ -104,8 +117,16 @@ public class IncrementalCachingTests : MapoVerifier
     [Fact]
     public void ParseResult_NullVsNonNullMapper_ShouldNotBeEqual()
     {
-        var mapper = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping>(), new List<InjectedMember>(), new List<GlobalConverter>());
+        var mapper = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping>(),
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
         var result1 = new ParseResult(null, new List<Diagnostic>());
         var result2 = new ParseResult(mapper, new List<Diagnostic>());
@@ -119,20 +140,26 @@ public class IncrementalCachingTests : MapoVerifier
         var diag1 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         var diag2 = Diagnostic.Create(
             Diagnostics.DiagnosticDescriptors.UnmappedPropertyWarning,
             Location.None,
-            "PropertyA", "TypeX");
+            "PropertyA",
+            "TypeX"
+        );
 
         var result1 = new ParseResult(null, new List<Diagnostic> { diag1 });
         var result2 = new ParseResult(null, new List<Diagnostic> { diag2 });
 
         // If two objects are equal, their hash codes must match
         result1.Equals(result2).Should().BeTrue("precondition: results should be equal");
-        result1.GetHashCode().Should().Be(result2.GetHashCode(),
-            "equal ParseResult objects must have equal hash codes");
+        result1
+            .GetHashCode()
+            .Should()
+            .Be(result2.GetHashCode(), "equal ParseResult objects must have equal hash codes");
     }
 
     #endregion
@@ -142,19 +169,55 @@ public class IncrementalCachingTests : MapoVerifier
     [Fact]
     public void MapperInfo_DifferentMappings_ShouldHaveDifferentHashCodes()
     {
-        var mapping1 = new MethodMapping("MapAToB", "A", "B", "B", false, "src",
-            new List<string> { "A src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping>(), new List<string>(), true);
+        var mapping1 = new MethodMapping(
+            "MapAToB",
+            "A",
+            "B",
+            "B",
+            false,
+            "src",
+            new List<string> { "A src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping>(),
+            new List<string>(),
+            true
+        );
 
-        var mapping2 = new MethodMapping("MapXToY", "X", "Y", "Y", false, "src",
-            new List<string> { "X src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping>(), new List<string>(), true);
+        var mapping2 = new MethodMapping(
+            "MapXToY",
+            "X",
+            "Y",
+            "Y",
+            false,
+            "src",
+            new List<string> { "X src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping>(),
+            new List<string>(),
+            true
+        );
 
-        var info1 = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping> { mapping1 }, new List<InjectedMember>(), new List<GlobalConverter>());
+        var info1 = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping> { mapping1 },
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
-        var info2 = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping> { mapping2 }, new List<InjectedMember>(), new List<GlobalConverter>());
+        var info2 = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping> { mapping2 },
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
         // These are NOT equal
         info1.Equals(info2).Should().BeFalse("precondition: different mappings means not equal");
@@ -163,26 +226,59 @@ public class IncrementalCachingTests : MapoVerifier
         // a good hash function should differentiate these. More importantly,
         // we're testing the fix ensures collection data IS included in the hash.
         // The old bug was that hash was identical for all MapperInfo with same scalar fields.
-        info1.GetHashCode().Should().NotBe(info2.GetHashCode(),
-            "MapperInfo with different Mappings should ideally have different hash codes");
+        info1
+            .GetHashCode()
+            .Should()
+            .NotBe(info2.GetHashCode(), "MapperInfo with different Mappings should ideally have different hash codes");
     }
 
     [Fact]
     public void MapperInfo_EqualObjects_MustHaveEqualHashCodes()
     {
-        var mapping = new MethodMapping("MapAToB", "A", "B", "B", false, "src",
-            new List<string> { "A src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping>(), new List<string>(), true);
+        var mapping = new MethodMapping(
+            "MapAToB",
+            "A",
+            "B",
+            "B",
+            false,
+            "src",
+            new List<string> { "A src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping>(),
+            new List<string>(),
+            true
+        );
 
-        var info1 = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping> { mapping }, new List<InjectedMember>(), new List<GlobalConverter>());
+        var info1 = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping> { mapping },
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
-        var info2 = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping> { mapping }, new List<InjectedMember>(), new List<GlobalConverter>());
+        var info2 = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping> { mapping },
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
         info1.Equals(info2).Should().BeTrue("precondition: objects should be equal");
-        info1.GetHashCode().Should().Be(info2.GetHashCode(),
-            "equal MapperInfo objects MUST have equal hash codes (Equals/GetHashCode contract)");
+        info1
+            .GetHashCode()
+            .Should()
+            .Be(
+                info2.GetHashCode(),
+                "equal MapperInfo objects MUST have equal hash codes (Equals/GetHashCode contract)"
+            );
     }
 
     [Fact]
@@ -191,15 +287,36 @@ public class IncrementalCachingTests : MapoVerifier
         var injected1 = new List<InjectedMember> { new InjectedMember("IFoo", "foo") };
         var injected2 = new List<InjectedMember> { new InjectedMember("IBar", "bar") };
 
-        var info1 = new MapperInfo("Test", "M", false, false, false,
-            new List<MethodMapping>(), injected1, new List<GlobalConverter>());
+        var info1 = new MapperInfo(
+            "Test",
+            "M",
+            false,
+            false,
+            false,
+            new List<MethodMapping>(),
+            injected1,
+            new List<GlobalConverter>()
+        );
 
-        var info2 = new MapperInfo("Test", "M", false, false, false,
-            new List<MethodMapping>(), injected2, new List<GlobalConverter>());
+        var info2 = new MapperInfo(
+            "Test",
+            "M",
+            false,
+            false,
+            false,
+            new List<MethodMapping>(),
+            injected2,
+            new List<GlobalConverter>()
+        );
 
         info1.Equals(info2).Should().BeFalse("precondition: different injected members");
-        info1.GetHashCode().Should().NotBe(info2.GetHashCode(),
-            "MapperInfo with different InjectedMembers should ideally have different hash codes");
+        info1
+            .GetHashCode()
+            .Should()
+            .NotBe(
+                info2.GetHashCode(),
+                "MapperInfo with different InjectedMembers should ideally have different hash codes"
+            );
     }
 
     [Fact]
@@ -208,25 +325,62 @@ public class IncrementalCachingTests : MapoVerifier
         var conv1 = new List<GlobalConverter> { new GlobalConverter("int", "string", true, "x", "x.ToString()") };
         var conv2 = new List<GlobalConverter> { new GlobalConverter("int", "bool", false, "x", "x > 0") };
 
-        var info1 = new MapperInfo("Test", "M", false, false, false,
-            new List<MethodMapping>(), new List<InjectedMember>(), conv1);
+        var info1 = new MapperInfo(
+            "Test",
+            "M",
+            false,
+            false,
+            false,
+            new List<MethodMapping>(),
+            new List<InjectedMember>(),
+            conv1
+        );
 
-        var info2 = new MapperInfo("Test", "M", false, false, false,
-            new List<MethodMapping>(), new List<InjectedMember>(), conv2);
+        var info2 = new MapperInfo(
+            "Test",
+            "M",
+            false,
+            false,
+            false,
+            new List<MethodMapping>(),
+            new List<InjectedMember>(),
+            conv2
+        );
 
         info1.Equals(info2).Should().BeFalse("precondition: different converters");
-        info1.GetHashCode().Should().NotBe(info2.GetHashCode(),
-            "MapperInfo with different GlobalConverters should ideally have different hash codes");
+        info1
+            .GetHashCode()
+            .Should()
+            .NotBe(
+                info2.GetHashCode(),
+                "MapperInfo with different GlobalConverters should ideally have different hash codes"
+            );
     }
 
     [Fact]
     public void MapperInfo_EmptyCollections_ShouldBeEqual()
     {
-        var info1 = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping>(), new List<InjectedMember>(), new List<GlobalConverter>());
+        var info1 = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping>(),
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
-        var info2 = new MapperInfo("Test", "M", true, false, false,
-            new List<MethodMapping>(), new List<InjectedMember>(), new List<GlobalConverter>());
+        var info2 = new MapperInfo(
+            "Test",
+            "M",
+            true,
+            false,
+            false,
+            new List<MethodMapping>(),
+            new List<InjectedMember>(),
+            new List<GlobalConverter>()
+        );
 
         info1.Equals(info2).Should().BeTrue();
         info1.GetHashCode().Should().Be(info2.GetHashCode());
@@ -241,14 +395,16 @@ public class IncrementalCachingTests : MapoVerifier
     {
         // Simulates the scenario where a user renames a property.
         // The generator must detect the change and re-emit.
-        string source1 = @"
+        string source1 =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } public string Name { get; set; } = """"; }
 public class T { public int Id { get; set; } public string Name { get; set; } = """"; }
 [Mapper] public partial class M { public partial T Map(S s); }";
 
-        string source2 = @"
+        string source2 =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } public string FullName { get; set; } = """"; }
@@ -261,22 +417,23 @@ public class T { public int Id { get; set; } public string Name { get; set; } = 
         var gen1 = result1.Results[0].GeneratedSources[0].SourceText.ToString();
         var gen2 = result2.Results[0].GeneratedSources[0].SourceText.ToString();
 
-        gen1.Should().NotBe(gen2,
-            "renaming a source property should produce different generated code");
+        gen1.Should().NotBe(gen2, "renaming a source property should produce different generated code");
     }
 
     [Fact]
     public void AddingUnmappedProperty_ShouldChangeDiagnostics()
     {
         // When a user adds a new unmapped property, the diagnostics should change
-        string source1 = @"
+        string source1 =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
 public class T { public int Id { get; set; } }
 [Mapper(StrictMode = true)] public partial class M { public partial T Map(S s); }";
 
-        string source2 = @"
+        string source2 =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -289,8 +446,9 @@ public class T { public int Id { get; set; } public string Extra { get; set; } =
         var diag1 = result1.Diagnostics.Where(d => d.Id == "MAPO001").ToList();
         var diag2 = result2.Diagnostics.Where(d => d.Id == "MAPO001").ToList();
 
-        diag2.Should().HaveCountGreaterThan(diag1.Count,
-            "adding an unmapped property should produce additional diagnostics");
+        diag2
+            .Should()
+            .HaveCountGreaterThan(diag1.Count, "adding an unmapped property should produce additional diagnostics");
     }
 
     [Fact]
@@ -298,7 +456,8 @@ public class T { public int Id { get; set; } public string Extra { get; set; } =
     {
         // Two identical compilations should produce equal results
         // (so the incremental pipeline can skip re-emission)
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -311,8 +470,7 @@ public class T { public int Id { get; set; } }
         var gen1 = result1.Results[0].GeneratedSources[0].SourceText.ToString();
         var gen2 = result2.Results[0].GeneratedSources[0].SourceText.ToString();
 
-        gen1.Should().Be(gen2,
-            "identical source should produce identical generated code");
+        gen1.Should().Be(gen2, "identical source should produce identical generated code");
     }
 
     #endregion
@@ -323,17 +481,39 @@ public class T { public int Id { get; set; } }
     public void MethodMapping_EqualObjects_MustHaveEqualHashCodes()
     {
         var pm = new PropertyMapping("Name", "src.Name");
-        var mapping1 = new MethodMapping("Map", "S", "T", "T", false, "src",
-            new List<string> { "S src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping> { pm }, new List<string>(), true);
+        var mapping1 = new MethodMapping(
+            "Map",
+            "S",
+            "T",
+            "T",
+            false,
+            "src",
+            new List<string> { "S src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping> { pm },
+            new List<string>(),
+            true
+        );
 
-        var mapping2 = new MethodMapping("Map", "S", "T", "T", false, "src",
-            new List<string> { "S src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping> { pm }, new List<string>(), true);
+        var mapping2 = new MethodMapping(
+            "Map",
+            "S",
+            "T",
+            "T",
+            false,
+            "src",
+            new List<string> { "S src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping> { pm },
+            new List<string>(),
+            true
+        );
 
         mapping1.Equals(mapping2).Should().BeTrue("precondition");
-        mapping1.GetHashCode().Should().Be(mapping2.GetHashCode(),
-            "equal MethodMapping objects must have equal hash codes");
+        mapping1
+            .GetHashCode()
+            .Should()
+            .Be(mapping2.GetHashCode(), "equal MethodMapping objects must have equal hash codes");
     }
 
     [Fact]
@@ -342,13 +522,33 @@ public class T { public int Id { get; set; } }
         var pm1 = new PropertyMapping("Name", "src.Name");
         var pm2 = new PropertyMapping("Title", "src.Title");
 
-        var mapping1 = new MethodMapping("Map", "S", "T", "T", false, "src",
-            new List<string> { "S src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping> { pm1 }, new List<string>(), true);
+        var mapping1 = new MethodMapping(
+            "Map",
+            "S",
+            "T",
+            "T",
+            false,
+            "src",
+            new List<string> { "S src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping> { pm1 },
+            new List<string>(),
+            true
+        );
 
-        var mapping2 = new MethodMapping("Map", "S", "T", "T", false, "src",
-            new List<string> { "S src" }, new List<ConstructorArg>(),
-            new List<PropertyMapping> { pm2 }, new List<string>(), true);
+        var mapping2 = new MethodMapping(
+            "Map",
+            "S",
+            "T",
+            "T",
+            false,
+            "src",
+            new List<string> { "S src" },
+            new List<ConstructorArg>(),
+            new List<PropertyMapping> { pm2 },
+            new List<string>(),
+            true
+        );
 
         mapping1.Equals(mapping2).Should().BeFalse();
     }

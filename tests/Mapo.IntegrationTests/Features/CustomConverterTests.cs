@@ -27,7 +27,9 @@ public partial class CustomConverterMapper
     static void Configure(IMapConfig<CustomConverterSource, CustomConverterDest> config)
     {
         config.AddConverter<DateTime, string>(dt => dt.ToString("yyyy-MM-dd"));
-        config.AddConverter<decimal, string>(d => $"${d.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)}");
+        config.AddConverter<decimal, string>(d =>
+            $"${d.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)}"
+        );
         config.AddConverter<Guid, string>(g => g.ToString("N"));
     }
 }
@@ -45,7 +47,7 @@ public class CustomConverterTests
         {
             CreatedAt = date,
             Price = 49.99m,
-            Identifier = id
+            Identifier = id,
         };
 
         var dest = mapper.Map(source);

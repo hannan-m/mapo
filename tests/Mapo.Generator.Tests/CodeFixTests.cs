@@ -8,7 +8,8 @@ public class CodeFixTests : MapoVerifier
     [Fact]
     public void MAPO003_NonPartialClass_DiagnosticEmitted()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }

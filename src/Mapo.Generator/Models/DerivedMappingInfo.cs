@@ -15,7 +15,8 @@ public class DerivedMappingInfo : IEquatable<DerivedMappingInfo>
 
     public bool Equals(DerivedMappingInfo other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return SourceTypeDisplayString == other.SourceTypeDisplayString
             && TargetTypeDisplayString == other.TargetTypeDisplayString;
     }

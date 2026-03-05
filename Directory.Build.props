@@ -4,13 +4,13 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    
+
     <!-- Package Metadata -->
     <Authors>Mapo Contributors</Authors>
     <Company>Mapo Open Source</Company>
     <RepositoryUrl>https://github.com/mapo/mapo</RepositoryUrl>
     <LicenseExpression>MIT</LicenseExpression>
-    
+
     <!-- Build Output -->
     <Deterministic>true</Deterministic>
   </PropertyGroup>

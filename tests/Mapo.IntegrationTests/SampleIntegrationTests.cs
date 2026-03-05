@@ -12,16 +12,17 @@ public class SampleIntegrationTests
     {
         var currentDir = Directory.GetCurrentDirectory();
         Console.WriteLine($"Current directory: {currentDir}");
-        
+
         // Find root by looking for Mapo.slnx or .git
         var dir = new DirectoryInfo(currentDir);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Mapo.slnx")))
         {
             dir = dir.Parent;
         }
-        
-        if (dir == null) throw new Exception("Could not find project root");
-        
+
+        if (dir == null)
+            throw new Exception("Could not find project root");
+
         return Path.Combine(dir.FullName, "samples", projectName, $"{projectName}.csproj");
     }
 
@@ -43,9 +44,9 @@ public class SampleIntegrationTests
 
         var outputTask = process.StandardOutput.ReadToEndAsync();
         var errorTask = process.StandardError.ReadToEndAsync();
-        
+
         await process.WaitForExitAsync();
-        
+
         var output = await outputTask;
         var error = await errorTask;
 
@@ -140,19 +141,24 @@ public class SampleIntegrationTests
             {
                 output = await process.StandardOutput.ReadToEndAsync();
                 error = await process.StandardError.ReadToEndAsync();
-                throw new Exception($"Process exited early with code {process.ExitCode}. \nOutput: {output}\nError: {error}");
+                throw new Exception(
+                    $"Process exited early with code {process.ExitCode}. \nOutput: {output}\nError: {error}"
+                );
             }
 
             using var client = new HttpClient();
-            // Minimal APIs by default might use random port in some templates, 
+            // Minimal APIs by default might use random port in some templates,
             // but WebApplication.CreateSlimBuilder usually defaults to 5000 if not configured.
             // Let's check if it's listening.
-            client.BaseAddress = new Uri("http://localhost:5000"); 
-            
+            client.BaseAddress = new Uri("http://localhost:5000");
+
             HttpResponseMessage response;
-            try {
+            try
+            {
                 response = await client.GetAsync("/products");
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 output = await process.StandardOutput.ReadToEndAsync();
                 error = await process.StandardError.ReadToEndAsync();
                 throw new Exception($"Failed to connect to AOT app: {ex.Message}. \nOutput: {output}\nError: {error}");

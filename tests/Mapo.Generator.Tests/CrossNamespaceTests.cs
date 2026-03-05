@@ -14,7 +14,8 @@ public class CrossNamespaceTests : MapoVerifier
     [Fact]
     public void TypesInDifferentNamespace_ShouldCompile()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 
 namespace Models
@@ -37,7 +38,8 @@ namespace Mappers
     [Fact]
     public void TypesInThreeNamespaces_ShouldCompile()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 
 namespace Domain.Entities
@@ -64,7 +66,8 @@ namespace Application.Mappers
     [Fact]
     public void TypesInDifferentNamespace_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 
@@ -103,7 +106,8 @@ namespace Test
     public void NestedTypes_DifferentNamespaces_ShouldCompile()
     {
         // Nested object mapping where all types are in different namespaces
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 
 namespace Domain
@@ -132,7 +136,8 @@ namespace Mapping
     [Fact]
     public void NestedTypes_DifferentNamespaces_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 
@@ -177,7 +182,8 @@ namespace Test
     [Fact]
     public void CollectionTypes_DifferentNamespaces_ShouldCompile()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System.Collections.Generic;
 
@@ -207,7 +213,8 @@ namespace Mapping
     [Fact]
     public void EnumTypes_DifferentNamespaces_ShouldCompile()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 
 namespace Domain
@@ -237,7 +244,8 @@ namespace Mapping
     public void ExtensionMethods_DifferentNamespaces_ShouldCompile()
     {
         // Extension methods reference source/target types which may be in other namespaces
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 
 namespace Domain

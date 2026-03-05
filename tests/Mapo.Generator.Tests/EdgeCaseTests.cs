@@ -8,7 +8,8 @@ public class EdgeCaseTests : MapoVerifier
     [Fact]
     public void EmptySourceObject_AllDefaults()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -23,7 +24,8 @@ public class T { public int Id { get; set; } public string Name { get; set; } = 
     [Fact]
     public void LargeObject_20Properties_GeneratesSuccessfully()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -65,7 +67,8 @@ public static class TestRunner
     [Fact]
     public void SourceWithNoGettableProperties_ReportsMAPO005()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { }
@@ -79,7 +82,8 @@ public class T { }
     [Fact]
     public void MultipleNullableValueTypes_AllCoerced()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -120,7 +124,8 @@ public static class TestRunner
     [Fact]
     public void EnumToString_InConstructor_Works()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -144,7 +149,8 @@ public static class TestRunner
     [Fact]
     public void StringToEnum_InConstructor_Works()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

@@ -68,7 +68,8 @@ public interface IMapConfig<TSource, TTarget>
     /// <example><code>config.Map(d => d.FullName, s => s.First + " " + s.Last);</code></example>
     IMapConfig<TSource, TTarget> Map<TTargetValue, TSourceValue>(
         Expression<Func<TTarget, TTargetValue>> target,
-        Expression<Func<TSource, TSourceValue>> source);
+        Expression<Func<TSource, TSourceValue>> source
+    );
 
     /// <summary>
     /// Excludes a target property from mapping. Silences MAPO001 for this property.

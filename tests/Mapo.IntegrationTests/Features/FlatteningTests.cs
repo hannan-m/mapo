@@ -39,11 +39,7 @@ public class FlatteningTests
         var profile = new CustomerProfile
         {
             Name = "John Doe",
-            Address = new NestedAddress
-            {
-                City = "New York",
-                Zip = "10001"
-            }
+            Address = new NestedAddress { City = "New York", Zip = "10001" },
         };
 
         var dto = mapper.Map(profile);

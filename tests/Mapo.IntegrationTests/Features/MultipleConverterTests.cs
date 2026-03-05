@@ -35,11 +35,12 @@ public partial class SensorMapper
 
     static void Configure(IMapConfig<SensorReading, SensorReadingDto> config)
     {
-        config.AddConverter<Guid, string>(g => g.ToString("D"))
-              .AddConverter<double, string>(d => d.ToString("F1", System.Globalization.CultureInfo.InvariantCulture))
-              .AddConverter<DateTime, string>(dt => dt.ToString("yyyy-MM-dd HH:mm"))
-              .AddConverter<bool, string>(b => b ? "YES" : "NO")
-              .AddConverter<decimal, string>(d => d.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+        config
+            .AddConverter<Guid, string>(g => g.ToString("D"))
+            .AddConverter<double, string>(d => d.ToString("F1", System.Globalization.CultureInfo.InvariantCulture))
+            .AddConverter<DateTime, string>(dt => dt.ToString("yyyy-MM-dd HH:mm"))
+            .AddConverter<bool, string>(b => b ? "YES" : "NO")
+            .AddConverter<decimal, string>(d => d.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
     }
 }
 
@@ -57,7 +58,7 @@ public class MultipleConverterTests
             Temperature = 72.456,
             ReadingTime = new DateTime(2025, 7, 4, 12, 30, 0),
             IsAlarm = true,
-            Voltage = 3.314m
+            Voltage = 3.314m,
         };
 
         var dto = mapper.Map(reading);
@@ -79,7 +80,7 @@ public class MultipleConverterTests
             Temperature = 0.0,
             ReadingTime = DateTime.MinValue,
             IsAlarm = false,
-            Voltage = 0m
+            Voltage = 0m,
         };
 
         var dto = mapper.Map(reading);

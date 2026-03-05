@@ -94,7 +94,7 @@ public class PolymorphicInheritanceTests
             ProviderName = "Stripe",
             AuthorizedAt = new DateTime(2025, 1, 15),
             Brand = "Visa",
-            LastFour = "4242"
+            LastFour = "4242",
         };
 
         var dto = mapper.MapPayment(card);
@@ -115,7 +115,7 @@ public class PolymorphicInheritanceTests
             ProviderName = "SWIFT",
             AuthorizedAt = new DateTime(2025, 3, 1),
             BankName = "Chase",
-            RoutingNumber = "021000021"
+            RoutingNumber = "021000021",
         };
 
         var dto = mapper.MapPayment(wire);
@@ -131,8 +131,18 @@ public class PolymorphicInheritanceTests
     {
         var mapper = new PolymorphicInheritanceMapper();
 
-        PaymentBase card = new CardPayment { ProviderName = "PayPal", Brand = "MC", LastFour = "9999" };
-        PaymentBase wire = new WirePayment { ProviderName = "ACH", BankName = "Wells", RoutingNumber = "123" };
+        PaymentBase card = new CardPayment
+        {
+            ProviderName = "PayPal",
+            Brand = "MC",
+            LastFour = "9999",
+        };
+        PaymentBase wire = new WirePayment
+        {
+            ProviderName = "ACH",
+            BankName = "Wells",
+            RoutingNumber = "123",
+        };
 
         mapper.MapPayment(card).Should().BeOfType<CardPaymentDto>();
         mapper.MapPayment(wire).Should().BeOfType<WirePaymentDto>();

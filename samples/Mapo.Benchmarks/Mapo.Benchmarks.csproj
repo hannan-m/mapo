@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -16,7 +15,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Mapo.Attributes\Mapo.Attributes.csproj" />
-    <ProjectReference Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference
+      Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
   </ItemGroup>
-
 </Project>

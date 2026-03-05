@@ -87,6 +87,7 @@ public partial class NotificationMapper
     public partial NotificationDto MapNotification(Notification notification);
 
     public partial List<NotificationDto> MapNotifications(List<Notification> notifications);
+
     public partial PreferenceDto MapPreferences(UserPreferences preferences);
 
     static void Configure(IMapConfig<EmailNotification, EmailDto> config)
@@ -96,7 +97,10 @@ public partial class NotificationMapper
 
     static void Configure(IMapConfig<SmsNotification, SmsDto> config)
     {
-        config.Map(d => d.MaskedPhone, s => s.PhoneNumber.Length > 5 ? s.PhoneNumber.Substring(0, 3) + "***" : s.PhoneNumber);
+        config.Map(
+            d => d.MaskedPhone,
+            s => s.PhoneNumber.Length > 5 ? s.PhoneNumber.Substring(0, 3) + "***" : s.PhoneNumber
+        );
     }
 
     static void Configure(IMapConfig<UserPreferences, PreferenceDto> config)
@@ -117,30 +121,30 @@ public class Program
 
         var notifications = new List<Notification>
         {
-            new EmailNotification 
-            { 
-                Id = Guid.NewGuid(), 
-                RecipientId = "user_1", 
-                Subject = "Welcome!", 
+            new EmailNotification
+            {
+                Id = Guid.NewGuid(),
+                RecipientId = "user_1",
+                Subject = "Welcome!",
                 Body = "Welcome to our platform. We are happy to have you here.",
-                SentAt = DateTime.UtcNow.AddHours(-1)
+                SentAt = DateTime.UtcNow.AddHours(-1),
             },
-            new SmsNotification 
-            { 
-                Id = Guid.NewGuid(), 
-                RecipientId = "user_2", 
-                PhoneNumber = "+1234567890", 
+            new SmsNotification
+            {
+                Id = Guid.NewGuid(),
+                RecipientId = "user_2",
+                PhoneNumber = "+1234567890",
                 Message = "Your OTP is 123456",
-                SentAt = DateTime.UtcNow.AddMinutes(-30)
+                SentAt = DateTime.UtcNow.AddMinutes(-30),
             },
-            new PushNotification 
-            { 
-                Id = Guid.NewGuid(), 
-                RecipientId = "user_1", 
-                Title = "New Message", 
+            new PushNotification
+            {
+                Id = Guid.NewGuid(),
+                RecipientId = "user_1",
+                Title = "New Message",
                 Text = "You have a new message from Alice",
-                SentAt = DateTime.UtcNow
-            }
+                SentAt = DateTime.UtcNow,
+            },
         };
 
         var preferences = new UserPreferences
@@ -150,8 +154,8 @@ public class Program
             {
                 { "Email", true },
                 { "SMS", false },
-                { "Push", true }
-            }
+                { "Push", true },
+            },
         };
 
         var mapper = new NotificationMapper();
@@ -164,16 +168,21 @@ public class Program
                 EmailDto => "Email",
                 SmsDto => "SMS",
                 PushDto => "Push",
-                _ => "Unknown"
+                _ => "Unknown",
             };
             Console.WriteLine($"[{dto.SentAt:t}] {type} to {dto.RecipientId}");
-            
-            if (dto is EmailDto email) Console.WriteLine($"  Subject: {email.Subject}, Body: {email.BodySummary}");
-            if (dto is SmsDto sms) Console.WriteLine($"  Phone: {sms.MaskedPhone}, Message: {sms.Message}");
-            if (dto is PushDto push) Console.WriteLine($"  Title: {push.Title}");
+
+            if (dto is EmailDto email)
+                Console.WriteLine($"  Subject: {email.Subject}, Body: {email.BodySummary}");
+            if (dto is SmsDto sms)
+                Console.WriteLine($"  Phone: {sms.MaskedPhone}, Message: {sms.Message}");
+            if (dto is PushDto push)
+                Console.WriteLine($"  Title: {push.Title}");
         }
 
         var prefDto = mapper.MapPreferences(preferences);
-        Console.WriteLine($"\nUser {prefDto.UserId} preferences: Enabled = {string.Join(", ", prefDto.EnabledChannels)}");
+        Console.WriteLine(
+            $"\nUser {prefDto.UserId} preferences: Enabled = {string.Join(", ", prefDto.EnabledChannels)}"
+        );
     }
 }

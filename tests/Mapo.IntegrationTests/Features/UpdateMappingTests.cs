@@ -32,9 +32,7 @@ public partial class ProfileMapper
 
     static void Configure(IMapConfig<ProfileUpdate, UserProfile> config)
     {
-        config.Ignore(d => d.Id)
-              .Ignore(d => d.CreatedAt)
-              .Ignore(d => d.InternalNote);
+        config.Ignore(d => d.Id).Ignore(d => d.CreatedAt).Ignore(d => d.InternalNote);
     }
 }
 
@@ -54,14 +52,14 @@ public class UpdateMappingTests
             Bio = "OldBio",
             Age = 20,
             CreatedAt = originalDate,
-            InternalNote = "Admin note"
+            InternalNote = "Admin note",
         };
 
         var update = new ProfileUpdate
         {
             DisplayName = "NewName",
             Bio = "Updated bio",
-            Age = 25
+            Age = 25,
         };
 
         mapper.ApplyUpdate(update, target);
@@ -85,7 +83,7 @@ public class UpdateMappingTests
         {
             DisplayName = "Original",
             Bio = "Original bio",
-            Age = 30
+            Age = 30,
         };
 
         // Update mappings return early on null source instead of throwing

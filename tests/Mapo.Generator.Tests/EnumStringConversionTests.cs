@@ -8,7 +8,8 @@ public class EnumStringConversionTests : MapoVerifier
     [Fact]
     public void EnumToString_GeneratesSuccessfully()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Status { Active, Inactive }
@@ -25,7 +26,8 @@ public class T { public string Status { get; set; } = """"; }
     [Fact]
     public void StringToEnum_GeneratesSuccessfully()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Status { Active, Inactive }
@@ -42,7 +44,8 @@ public class T { public Status Status { get; set; } }
     [Fact]
     public void EnumToString_WithCustomConverter_ConverterTakesPrecedence()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Status { Active, Inactive }
@@ -67,7 +70,8 @@ public class T { public string Status { get; set; } = """"; }
     [Fact]
     public void EnumToString_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -91,7 +95,8 @@ public static class TestRunner
     [Fact]
     public void StringToEnum_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -115,7 +120,8 @@ public static class TestRunner
     [Fact]
     public void EnumToString_WithCustomMapping_Works()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

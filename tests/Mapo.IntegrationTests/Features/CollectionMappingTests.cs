@@ -5,8 +5,15 @@ using Xunit;
 
 namespace Mapo.IntegrationTests.Features;
 
-public class BasicSource { public int Value { get; set; } }
-public class BasicDest { public int Value { get; set; } }
+public class BasicSource
+{
+    public int Value { get; set; }
+}
+
+public class BasicDest
+{
+    public int Value { get; set; }
+}
 
 public class CollectionSource
 {
@@ -24,6 +31,7 @@ public class CollectionDest
 public partial class CollectionMapper
 {
     public partial CollectionDest Map(CollectionSource source);
+
     public partial BasicDest MapBasic(BasicSource source);
 }
 
@@ -33,11 +41,11 @@ public class CollectionMappingTests
     public void Collections_ShouldMapCorrectly()
     {
         var mapper = new CollectionMapper();
-        
+
         var source = new CollectionSource
         {
             ArrayItems = [new BasicSource { Value = 1 }, new BasicSource { Value = 2 }],
-            ListItems = [new BasicSource { Value = 3 }, new BasicSource { Value = 4 }]
+            ListItems = [new BasicSource { Value = 3 }, new BasicSource { Value = 4 }],
         };
 
         var dest = mapper.Map(source);

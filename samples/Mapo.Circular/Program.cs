@@ -70,25 +70,26 @@ public record MessageDto
 public partial class SocialNetworkMapper
 {
     public partial UserDto MapUser(User user);
+
     public partial CommunityDto MapCommunity(Community community);
+
     public partial MessageDto MapMessage(Message message);
 
     static void Configure(IMapConfig<User, UserDto> config)
     {
-        config.Map(d => d.FollowerCount, s => s.Followers.Count)
-              .Map(d => d.CommunityNames, s => s.Communities.Select(c => c.Name).ToList());
+        config
+            .Map(d => d.FollowerCount, s => s.Followers.Count)
+            .Map(d => d.CommunityNames, s => s.Communities.Select(c => c.Name).ToList());
     }
 
     static void Configure(IMapConfig<Community, CommunityDto> config)
     {
-        config.Map(d => d.AdminUsername, s => s.Admin.Username)
-              .Map(d => d.MemberCount, s => s.Members.Count);
+        config.Map(d => d.AdminUsername, s => s.Admin.Username).Map(d => d.MemberCount, s => s.Members.Count);
     }
 
     static void Configure(IMapConfig<Message, MessageDto> config)
     {
-        config.Map(d => d.SenderName, s => s.Sender.Username)
-              .Map(d => d.ReceiverName, s => s.Receiver.Username);
+        config.Map(d => d.SenderName, s => s.Sender.Username).Map(d => d.ReceiverName, s => s.Receiver.Username);
     }
 }
 
@@ -102,20 +103,30 @@ public class Program
     {
         Console.WriteLine("=== Mapo Social Network (Circular) Sample ===\n");
 
-        var alice = new User { Id = Guid.NewGuid(), Username = "alice", Bio = "Love coding!" };
-        var bob = new User { Id = Guid.NewGuid(), Username = "bob", Bio = "Coffee enthusiast." };
+        var alice = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = "alice",
+            Bio = "Love coding!",
+        };
+        var bob = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = "bob",
+            Bio = "Coffee enthusiast.",
+        };
 
         // Circular: Followers/Following
         alice.Following.Add(bob);
         bob.Followers.Add(alice);
 
         // Circular: Community <-> Members/Admin
-        var dotnetCommunity = new Community 
-        { 
-            Id = Guid.NewGuid(), 
-            Name = ".NET Developers", 
+        var dotnetCommunity = new Community
+        {
+            Id = Guid.NewGuid(),
+            Name = ".NET Developers",
             Admin = alice,
-            Members = [alice, bob]
+            Members = [alice, bob],
         };
         alice.Communities.Add(dotnetCommunity);
         bob.Communities.Add(dotnetCommunity);
@@ -127,7 +138,7 @@ public class Program
             Content = "Hey Bob, check out Mapo!",
             Sender = alice,
             Receiver = bob,
-            SentAt = DateTime.UtcNow
+            SentAt = DateTime.UtcNow,
         };
         alice.SentMessages.Add(msg);
         bob.ReceivedMessages.Add(msg);
@@ -135,14 +146,18 @@ public class Program
         var mapper = new SocialNetworkMapper();
 
         var aliceDto = mapper.MapUser(alice);
-        Console.WriteLine($"User: {aliceDto.Username}, Followers: {aliceDto.FollowerCount}, Communities: {string.Join(", ", aliceDto.CommunityNames)}");
+        Console.WriteLine(
+            $"User: {aliceDto.Username}, Followers: {aliceDto.FollowerCount}, Communities: {string.Join(", ", aliceDto.CommunityNames)}"
+        );
 
         var communityDto = mapper.MapCommunity(dotnetCommunity);
-        Console.WriteLine($"Community: {communityDto.Name}, Admin: {communityDto.AdminUsername}, Members: {communityDto.MemberCount}");
+        Console.WriteLine(
+            $"Community: {communityDto.Name}, Admin: {communityDto.AdminUsername}, Members: {communityDto.MemberCount}"
+        );
 
         var messageDto = mapper.MapMessage(msg);
         Console.WriteLine($"Message: '{messageDto.Content}' from {messageDto.SenderName} to {messageDto.ReceiverName}");
-        
+
         Console.WriteLine("\nReference tracking prevented infinite recursion in circular graph.");
     }
 }

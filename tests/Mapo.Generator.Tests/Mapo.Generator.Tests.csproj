@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -14,7 +13,7 @@
     <!-- Force higher version of CodeAnalysis to match Generator -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
-    
+
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -31,5 +30,4 @@
     <ProjectReference Include="..\..\src\Mapo.Generator\Mapo.Generator.csproj" />
     <ProjectReference Include="..\..\src\Mapo.Attributes\Mapo.Attributes.csproj" />
   </ItemGroup>
-
 </Project>

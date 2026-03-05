@@ -23,6 +23,7 @@ public class UserDto
 public partial class ReverseMapper
 {
     public partial UserDto MapToDto(UserEntity entity);
+
     public partial UserEntity MapToEntity(UserDto dto);
 
     static void Configure(IMapConfig<UserEntity, UserDto> config)
@@ -38,12 +39,12 @@ public class ReverseMappingTests
     public void ReverseMap_ShouldMapBackToSourceType()
     {
         var mapper = new ReverseMapper();
-        
+
         var dto = new UserDto
         {
             Id = 42,
             DisplayName = "john_doe",
-            IsActive = true
+            IsActive = true,
         };
 
         var entity = mapper.MapToEntity(dto);
@@ -58,6 +59,7 @@ public class ReverseMappingTests
 public partial class FullyConfiguredReverseMapper
 {
     public partial UserDto MapToDto(UserEntity entity);
+
     public partial UserEntity MapToEntity(UserDto dto);
 
     static void Configure(IMapConfig<UserEntity, UserDto> config)
@@ -65,12 +67,11 @@ public partial class FullyConfiguredReverseMapper
         config.Map(d => d.DisplayName, s => s.Username);
         config.ReverseMap();
     }
-    
+
     // Explicitly configure the DTO -> Entity direction since Mapo doesn't auto-reverse lambdas.
     static void Configure(IMapConfig<UserDto, UserEntity> config)
     {
-        config.Map(e => e.Username, d => d.DisplayName)
-              .Ignore(e => e.PasswordHash);
+        config.Map(e => e.Username, d => d.DisplayName).Ignore(e => e.PasswordHash);
     }
 }
 
@@ -80,12 +81,12 @@ public class ExplicitReverseMappingTests
     public void ExplicitReverseMap_ShouldMapAllPropertiesCorrectly()
     {
         var mapper = new FullyConfiguredReverseMapper();
-        
+
         var dto = new UserDto
         {
             Id = 99,
             DisplayName = "jane_doe",
-            IsActive = false
+            IsActive = false,
         };
 
         var entity = mapper.MapToEntity(dto);
@@ -94,7 +95,7 @@ public class ExplicitReverseMappingTests
         entity.Id.Should().Be(99);
         entity.Username.Should().Be("jane_doe");
         entity.IsActive.Should().BeFalse();
-        
+
         // Ignored property should be default
         entity.PasswordHash.Should().Be("");
     }

@@ -11,7 +11,13 @@ public class GlobalConverter : IEquatable<GlobalConverter>
     public string ParamName { get; }
     public string Expression { get; }
 
-    public GlobalConverter(string sourceTypeDisplayString, string targetTypeDisplayString, bool targetIsString, string paramName, string expression)
+    public GlobalConverter(
+        string sourceTypeDisplayString,
+        string targetTypeDisplayString,
+        bool targetIsString,
+        string paramName,
+        string expression
+    )
     {
         SourceTypeDisplayString = sourceTypeDisplayString;
         TargetTypeDisplayString = targetTypeDisplayString;
@@ -22,7 +28,8 @@ public class GlobalConverter : IEquatable<GlobalConverter>
 
     public bool Equals(GlobalConverter other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return SourceTypeDisplayString == other.SourceTypeDisplayString
             && TargetTypeDisplayString == other.TargetTypeDisplayString
             && TargetIsString == other.TargetIsString
@@ -57,7 +64,8 @@ public class InjectedMember : IEquatable<InjectedMember>
 
     public bool Equals(InjectedMember other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return Type == other.Type && Name == other.Name;
     }
 
@@ -83,8 +91,16 @@ public class MapperInfo : IEquatable<MapperInfo>
     public List<InjectedMember> InjectedMembers { get; }
     public List<GlobalConverter> GlobalConverters { get; }
 
-    public MapperInfo(string @namespace, string className, bool isStatic, bool strictMode, bool useReferenceTracking,
-        List<MethodMapping> mappings, List<InjectedMember> injectedMembers, List<GlobalConverter> globalConverters)
+    public MapperInfo(
+        string @namespace,
+        string className,
+        bool isStatic,
+        bool strictMode,
+        bool useReferenceTracking,
+        List<MethodMapping> mappings,
+        List<InjectedMember> injectedMembers,
+        List<GlobalConverter> globalConverters
+    )
     {
         Namespace = @namespace;
         ClassName = className;
@@ -98,7 +114,8 @@ public class MapperInfo : IEquatable<MapperInfo>
 
     public bool Equals(MapperInfo other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return Namespace == other.Namespace
             && ClassName == other.ClassName
             && IsStatic == other.IsStatic
@@ -125,32 +142,43 @@ public class MapperInfo : IEquatable<MapperInfo>
         return hash;
     }
 
-    private static int ListHash<T>(List<T> list) where T : IEquatable<T>
+    private static int ListHash<T>(List<T> list)
+        where T : IEquatable<T>
     {
-        if (list is null) return 0;
+        if (list is null)
+            return 0;
         int hash = 17;
         for (int i = 0; i < list.Count; i++)
             hash = hash * 31 + (list[i]?.GetHashCode() ?? 0);
         return hash;
     }
 
-    private static bool ListEquals<T>(List<T> a, List<T> b) where T : IEquatable<T>
+    private static bool ListEquals<T>(List<T> a, List<T> b)
+        where T : IEquatable<T>
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (!a[i].Equals(b[i])) return false;
+            if (!a[i].Equals(b[i]))
+                return false;
         return true;
     }
 
     private static bool MappingListEquals(List<MethodMapping> a, List<MethodMapping> b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (!a[i].Equals(b[i])) return false;
+            if (!a[i].Equals(b[i]))
+                return false;
         return true;
     }
 }

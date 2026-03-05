@@ -51,9 +51,13 @@ public partial class EventMapper
 
     static void Configure(IMapConfig<EventSource, EventDto> config, IDateFormatter dateFormatter, string currencySymbol)
     {
-        config.Map(d => d.StartDisplay, s => dateFormatter.Format(s.StartDate))
-              .Map(d => d.EndDisplay, s => dateFormatter.Format(s.EndDate))
-              .Map(d => d.PriceDisplay, s => currencySymbol + s.TicketPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+        config
+            .Map(d => d.StartDisplay, s => dateFormatter.Format(s.StartDate))
+            .Map(d => d.EndDisplay, s => dateFormatter.Format(s.EndDate))
+            .Map(
+                d => d.PriceDisplay,
+                s => currencySymbol + s.TicketPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+            );
     }
 }
 
@@ -68,7 +72,7 @@ public class InjectedMemberTests
             Title = "Tech Conference",
             StartDate = new DateTime(2025, 9, 15),
             EndDate = new DateTime(2025, 9, 17),
-            TicketPrice = 299.99m
+            TicketPrice = 299.99m,
         };
 
         var dto = mapper.Map(source);
@@ -88,7 +92,7 @@ public class InjectedMemberTests
             Title = "EU Summit",
             StartDate = new DateTime(2025, 6, 1),
             EndDate = new DateTime(2025, 6, 3),
-            TicketPrice = 150.00m
+            TicketPrice = 150.00m,
         };
 
         var dto = euroMapper.Map(source);

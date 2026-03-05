@@ -4,10 +4,22 @@ using Xunit;
 
 namespace Mapo.IntegrationTests.Features;
 
-public enum SourceStatus { Active, Inactive, Pending }
-public enum DestStatus { Active, Inactive, Pending }
+public enum SourceStatus
+{
+    Active,
+    Inactive,
+    Pending,
+}
+
+public enum DestStatus
+{
+    Active,
+    Inactive,
+    Pending,
+}
 
 public record SourceRecord(int Id, string Name, SourceStatus Status);
+
 public record DestRecord(int Id, string Name, DestStatus Status);
 
 [Mapper]
@@ -22,7 +34,7 @@ public class EnumAndRecordTests
     public void Map_ShouldHandleRecordsAndEnumsCorrectly()
     {
         var mapper = new RecordMapper();
-        
+
         var source = new SourceRecord(42, "Test Record", SourceStatus.Pending);
         var dest = mapper.Map(source);
 

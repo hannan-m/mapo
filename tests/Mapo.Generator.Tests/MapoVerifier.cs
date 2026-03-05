@@ -1,7 +1,7 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Reflection;
 using FluentAssertions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 
 namespace Mapo.Generator.Tests;
@@ -10,7 +10,8 @@ public abstract class MapoVerifier
 {
     protected Compilation CreateCompilation(string source)
     {
-        return CSharpCompilation.Create("compilation",
+        return CSharpCompilation.Create(
+            "compilation",
             new[] { CSharpSyntaxTree.ParseText(source) },
             new[]
             {
@@ -22,7 +23,8 @@ public abstract class MapoVerifier
                 MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location),
                 MetadataReference.CreateFromFile(Assembly.Load("System.Linq.Expressions").Location),
             },
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        );
     }
 
     protected GeneratorDriverRunResult RunGenerator(string source)
@@ -40,21 +42,27 @@ public abstract class MapoVerifier
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
 
-        var diagnostics = outputCompilation.GetDiagnostics()
+        var diagnostics = outputCompilation
+            .GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .ToList();
 
         diagnostics.Should().BeEmpty("generated code should compile without errors");
     }
 
-    protected void AssertGeneratedCodeRuns(string source, string typeName = "Test.TestRunner", string methodName = "Run")
+    protected void AssertGeneratedCodeRuns(
+        string source,
+        string typeName = "Test.TestRunner",
+        string methodName = "Run"
+    )
     {
         var compilation = CreateCompilation(source);
         var generator = new MapoGenerator();
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
 
-        var diagnostics = outputCompilation.GetDiagnostics()
+        var diagnostics = outputCompilation
+            .GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .ToList();
 

@@ -8,7 +8,8 @@ public class CollectionMappingTests : MapoVerifier
     [Fact]
     public void RecursiveDiscovery_Collection_GeneratesMapper()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System.Collections.Generic;
 namespace Test;
@@ -26,7 +27,8 @@ public class T { public List<TItem> Items { get; set; } = new(); }
     [Fact]
     public void Collection_ArrayToList_GeneratesOptimizedLoop()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System.Collections.Generic;
 namespace Test;

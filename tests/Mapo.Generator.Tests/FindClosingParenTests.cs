@@ -1,6 +1,6 @@
 using FluentAssertions;
-using Xunit;
 using Mapo.Generator.Emit;
+using Xunit;
 
 namespace Mapo.Generator.Tests;
 
@@ -95,7 +95,8 @@ public class FindClosingParenTests : MapoVerifier
     [Fact]
     public void CustomMapping_StringWithParens_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -126,7 +127,8 @@ public static class TestRunner
     [Fact]
     public void CustomMapping_NestedMethodCall_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

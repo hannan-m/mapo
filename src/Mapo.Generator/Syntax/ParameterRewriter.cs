@@ -12,7 +12,12 @@ public class ParameterRewriter : CSharpSyntaxRewriter
     private readonly ImmutableHashSet<string> _methodParams;
     private readonly Dictionary<string, string> _injectedRenames;
 
-    public ParameterRewriter(string oldName, string newName, ImmutableHashSet<string> methodParams, Dictionary<string, string>? injectedRenames = null)
+    public ParameterRewriter(
+        string oldName,
+        string newName,
+        ImmutableHashSet<string> methodParams,
+        Dictionary<string, string>? injectedRenames = null
+    )
     {
         _oldName = oldName;
         _newName = newName;

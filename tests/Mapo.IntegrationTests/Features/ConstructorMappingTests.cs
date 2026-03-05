@@ -45,7 +45,9 @@ public class PersonMixed
 public partial class ConstructorMapper
 {
     public partial PersonRecord MapToRecord(PersonSource source);
+
     public partial PersonInitOnly MapToInitOnly(PersonSource source);
+
     public partial PersonMixed MapToMixed(PersonSource source);
 
     static void Configure(IMapConfig<PersonSource, PersonMixed> config)
@@ -65,7 +67,7 @@ public class ConstructorMappingTests
             FirstName = "Jane",
             LastName = "Doe",
             Age = 30,
-            Email = "jane@example.com"
+            Email = "jane@example.com",
         };
 
         var record = mapper.MapToRecord(source);
@@ -85,7 +87,7 @@ public class ConstructorMappingTests
             FirstName = "Bob",
             LastName = "Smith",
             Age = 45,
-            Email = "bob@test.com"
+            Email = "bob@test.com",
         };
 
         var result = mapper.MapToInitOnly(source);
@@ -105,7 +107,7 @@ public class ConstructorMappingTests
             FirstName = "Alice",
             LastName = "Wonder",
             Age = 25,
-            Email = "alice@example.com"
+            Email = "alice@example.com",
         };
 
         var result = mapper.MapToMixed(source);

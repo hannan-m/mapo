@@ -15,7 +15,8 @@ public class Step16Tests : MapoVerifier
     [Fact]
     public void GeneratedCode_HasGeneratedCodeAttribute()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -29,7 +30,8 @@ public class T { public int Id { get; set; } }
     [Fact]
     public void GeneratedCode_AttributeDoesNotBreakCompilation()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -41,7 +43,8 @@ public class T { public int Id { get; set; } }
     [Fact]
     public void GeneratedCode_ExtensionClassHasAttribute()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -50,8 +53,10 @@ public class T { public int Id { get; set; } }
         var result = RunGenerator(source);
         var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
         // Both the mapper class and extension class should have the attribute
-        generated.Split("[GeneratedCode(").Length.Should().BeGreaterThanOrEqualTo(3,
-            "both mapper class and extension class should have [GeneratedCode]");
+        generated
+            .Split("[GeneratedCode(")
+            .Length.Should()
+            .BeGreaterThanOrEqualTo(3, "both mapper class and extension class should have [GeneratedCode]");
     }
 
     // ─── #33: CodeWriter double-call guard ───
@@ -63,8 +68,7 @@ public class T { public int Id { get; set; } }
         cw.AppendLine("// test");
         cw.ToString(); // first call OK
         var act = () => cw.ToString(); // second call should throw
-        act.Should().Throw<System.InvalidOperationException>()
-            .WithMessage("*already been called*");
+        act.Should().Throw<System.InvalidOperationException>().WithMessage("*already been called*");
     }
 
     // ─── #25: Circular reference detection ───
@@ -72,7 +76,8 @@ public class T { public int Id { get; set; } }
     [Fact]
     public void CircularReference_WithoutTracking_EmitsDiagnostic()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Parent { public int Id { get; set; } public Child Child { get; set; } }
@@ -82,14 +87,16 @@ public class ChildDto { public int Id { get; set; } public ParentDto Parent { ge
 [Mapper] public static partial class M { public static partial ParentDto Map(Parent p); }";
         var result = RunGenerator(source);
         var diagnostics = result.Diagnostics;
-        diagnostics.Should().Contain(d => d.Id == "MAPO010",
-            "circular reference without UseReferenceTracking should emit MAPO010");
+        diagnostics
+            .Should()
+            .Contain(d => d.Id == "MAPO010", "circular reference without UseReferenceTracking should emit MAPO010");
     }
 
     [Fact]
     public void CircularReference_WithTracking_NoDiagnostic()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Parent { public int Id { get; set; } public Child Child { get; set; } }
@@ -99,8 +106,9 @@ public class ChildDto { public int Id { get; set; } public ParentDto Parent { ge
 [Mapper(UseReferenceTracking = true)] public static partial class M { public static partial ParentDto Map(Parent p); }";
         var result = RunGenerator(source);
         var diagnostics = result.Diagnostics;
-        diagnostics.Should().NotContain(d => d.Id == "MAPO010",
-            "circular reference with UseReferenceTracking should not emit MAPO010");
+        diagnostics
+            .Should()
+            .NotContain(d => d.Id == "MAPO010", "circular reference with UseReferenceTracking should not emit MAPO010");
     }
 
     // ─── #27: Unmatched enum members in StrictMode ───
@@ -108,7 +116,8 @@ public class ChildDto { public int Id { get; set; } public ParentDto Parent { ge
     [Fact]
     public void UnmatchedEnum_StrictMode_EmitsDiagnostic()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum SourceColor { Red, Green, Blue, Purple }
@@ -117,14 +126,16 @@ public class S { public SourceColor Color { get; set; } }
 public class T { public TargetColor Color { get; set; } }
 [Mapper(StrictMode = true)] public static partial class M { public static partial T Map(S s); }";
         var result = RunGenerator(source);
-        result.Diagnostics.Should().Contain(d => d.Id == "MAPO011",
-            "unmatched enum member 'Purple' should emit MAPO011 in strict mode");
+        result
+            .Diagnostics.Should()
+            .Contain(d => d.Id == "MAPO011", "unmatched enum member 'Purple' should emit MAPO011 in strict mode");
     }
 
     [Fact]
     public void UnmatchedEnum_NonStrictMode_NoDiagnostic()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum SourceColor { Red, Green, Blue, Purple }
@@ -133,14 +144,16 @@ public class S { public SourceColor Color { get; set; } }
 public class T { public TargetColor Color { get; set; } }
 [Mapper] public static partial class M { public static partial T Map(S s); }";
         var result = RunGenerator(source);
-        result.Diagnostics.Should().NotContain(d => d.Id == "MAPO011",
-            "unmatched enum members should not emit MAPO011 in non-strict mode");
+        result
+            .Diagnostics.Should()
+            .NotContain(d => d.Id == "MAPO011", "unmatched enum members should not emit MAPO011 in non-strict mode");
     }
 
     [Fact]
     public void MatchedEnum_StrictMode_NoDiagnostic()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum SourceColor { Red, Green, Blue }
@@ -149,7 +162,8 @@ public class S { public SourceColor Color { get; set; } }
 public class T { public TargetColor Color { get; set; } }
 [Mapper(StrictMode = true)] public static partial class M { public static partial T Map(S s); }";
         var result = RunGenerator(source);
-        result.Diagnostics.Should().NotContain(d => d.Id == "MAPO011",
-            "fully matched enums should not emit MAPO011 even in strict mode");
+        result
+            .Diagnostics.Should()
+            .NotContain(d => d.Id == "MAPO011", "fully matched enums should not emit MAPO011 even in strict mode");
     }
 }

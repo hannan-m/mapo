@@ -8,19 +8,20 @@ public class AdvancedMappingTests : MapoVerifier
     [Fact]
     public void Flattening_GeneratesNullSafeChain()
     {
-        string source = "using Mapo.Attributes; namespace Test; public class A { public string City { get; set; } } public class S { public A Home { get; set; } } public class T { public string HomeCity { get; set; } } [Mapper] public partial class M { public partial T Map(S s); }";
+        string source =
+            "using Mapo.Attributes; namespace Test; public class A { public string City { get; set; } } public class S { public A Home { get; set; } } public class T { public string HomeCity { get; set; } } [Mapper] public partial class M { public partial T Map(S s); }";
         var result = RunGenerator(source);
         var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
         generated.Should().Contain("Home?.City");
-        generated.Should().NotContain("?? default",
-            "reference type (string) should not need ?? default");
+        generated.Should().NotContain("?? default", "reference type (string) should not need ?? default");
         AssertGeneratedCodeCompiles(source);
     }
 
     [Fact]
     public void RecursiveDiscovery_NestedObject_GeneratesMapper()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes; 
 namespace Test; 
 public class A { public int Id { get; set; } } 
@@ -37,7 +38,8 @@ public class T { public B Nested { get; set; } }
     [Fact]
     public void MapDerived_Polymorphism_GeneratesSwitch()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public abstract class Animal { }
@@ -61,7 +63,8 @@ public partial class M
     [Fact]
     public void GlobalConverter_IsApplied()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Count { get; set; } }
@@ -84,7 +87,8 @@ public partial class M
     [Fact]
     public void InjectedMember_IsUsedInCustomMapping()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public interface IFormatter { string Format(int v); }
@@ -110,7 +114,8 @@ public partial class M
     [Fact]
     public void ReferenceTracking_GeneratesContext()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class Node { public Node? Next { get; set; } }
@@ -131,7 +136,8 @@ public partial class M
     [Fact]
     public void UpdateMapping_PopulatesExistingTarget()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public string Name { get; set; } = """"; }
@@ -152,7 +158,8 @@ public partial class M
     [Fact]
     public void ReverseMap_GeneratesBothDirections()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public string Name { get; set; } = """"; }

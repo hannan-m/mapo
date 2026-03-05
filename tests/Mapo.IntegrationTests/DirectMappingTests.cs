@@ -7,7 +7,14 @@ using Xunit;
 
 namespace Mapo.IntegrationTests.DirectMapping;
 
-public enum OrderStatus { Draft, Confirmed, Shipped, Delivered, Cancelled }
+public enum OrderStatus
+{
+    Draft,
+    Confirmed,
+    Shipped,
+    Delivered,
+    Cancelled,
+}
 
 public record Tenant(Guid Id, string Name, string CurrencyCode);
 
@@ -18,7 +25,9 @@ public class Category
 }
 
 public abstract record PaymentMethod;
+
 public record CreditCard(string LastFour, string Brand) : PaymentMethod;
+
 public record Crypto(string WalletAddress, string Network) : PaymentMethod;
 
 public class Address
@@ -62,6 +71,7 @@ public class Customer
 }
 
 public record ProductDto(Guid Id, string SKU, string Name, string CategoryName, string PriceDisplay);
+
 public record ProductUpdateDto(string Name, decimal Price);
 
 public record OrderDto(
@@ -72,13 +82,10 @@ public record OrderDto(
     decimal TotalPrice,
     List<ProductDto> Products,
     string ShippingAddressCity,
-    string InternalNote = "");
+    string InternalNote = ""
+);
 
-public record CustomerDto(
-    Guid Id,
-    string FullName,
-    string Email,
-    List<OrderDto> RecentOrders);
+public record CustomerDto(Guid Id, string FullName, string Email, List<OrderDto> RecentOrders);
 
 public interface ICurrencyFormatter
 {
@@ -98,66 +105,68 @@ public partial class EnterpriseIntegrationMapper
     }
 
     public partial CustomerDto MapToDto(Customer customer);
+
     public partial OrderDto MapOrder(Order order);
+
     public partial ProductDto MapProduct(Product product);
+
     public partial List<OrderDto> MapOrders(List<Order> orders);
 
     public partial Product MapProductDtoToProduct(ProductDto src);
+
     public partial void ApplyUpdate(ProductUpdateDto source, Product target);
 
     [MapDerived(typeof(CreditCard), typeof(string))]
     [MapDerived(typeof(Crypto), typeof(string))]
-    public static string MapPayment(PaymentMethod? method) => method switch
-    {
-        CreditCard cc => $"Card: {cc.Brand} (***{cc.LastFour})",
-        Crypto crypto => $"Crypto: {crypto.Network} ({crypto.WalletAddress[..8]}...)",
-        _ => "Unknown"
-    };
+    public static string MapPayment(PaymentMethod? method) =>
+        method switch
+        {
+            CreditCard cc => $"Card: {cc.Brand} (***{cc.LastFour})",
+            Crypto crypto => $"Crypto: {crypto.Network} ({crypto.WalletAddress[..8]}...)",
+            _ => "Unknown",
+        };
 
     static void Configure(IMapConfig<Customer, CustomerDto> config)
     {
-        config.Map(d => d.FullName, s => s.FirstName + " " + s.LastName)
-              .Map(d => d.RecentOrders, s => s.Orders);
+        config.Map(d => d.FullName, s => s.FirstName + " " + s.LastName).Map(d => d.RecentOrders, s => s.Orders);
     }
 
     static void Configure(IMapConfig<Product, ProductDto> config, ICurrencyFormatter formatter, Tenant tenant)
     {
-        config.Map(d => d.CategoryName, s => s.Category.Name)
-              .Map(d => d.PriceDisplay, s => formatter.Format(s.Price, tenant.CurrencyCode))
-              .ReverseMap();
+        config
+            .Map(d => d.CategoryName, s => s.Category.Name)
+            .Map(d => d.PriceDisplay, s => formatter.Format(s.Price, tenant.CurrencyCode))
+            .ReverseMap();
     }
 
     static void Configure(IMapConfig<ProductDto, Product> config)
     {
-        config.Ignore(d => d.Price)
-              .Ignore(d => d.Category)
-              .Ignore(d => d.LastUpdated);
+        config.Ignore(d => d.Price).Ignore(d => d.Category).Ignore(d => d.LastUpdated);
     }
 
     static void Configure(IMapConfig<Order, OrderDto> config)
     {
         config.AddConverter<DateTime, string>(dt => dt.ToString("yyyy-MM-dd HH:mm:ss"));
 
-        config.Map(d => d.FormattedDate, s => s.Date)
-              .Map(d => d.StatusLabel, s => s.Status.ToString().ToUpper())
-              .Map(d => d.PaymentInfo, s => MapPayment(s.Payment))
-              .Map(d => d.TotalPrice, s => s.Items.Sum(i => i.Product.Price * i.Quantity))
-              .Map(d => d.Products, s => s.Items.Select(i => i.Product).ToList())
-              .Ignore(d => d.InternalNote);
+        config
+            .Map(d => d.FormattedDate, s => s.Date)
+            .Map(d => d.StatusLabel, s => s.Status.ToString().ToUpper())
+            .Map(d => d.PaymentInfo, s => MapPayment(s.Payment))
+            .Map(d => d.TotalPrice, s => s.Items.Sum(i => i.Product.Price * i.Quantity))
+            .Map(d => d.Products, s => s.Items.Select(i => i.Product).ToList())
+            .Ignore(d => d.InternalNote);
     }
 
     static void Configure(IMapConfig<ProductUpdateDto, Product> config)
     {
-        config.Ignore(d => d.Id)
-              .Ignore(d => d.SKU)
-              .Ignore(d => d.Category)
-              .Ignore(d => d.LastUpdated);
+        config.Ignore(d => d.Id).Ignore(d => d.SKU).Ignore(d => d.Category).Ignore(d => d.LastUpdated);
     }
 }
 
 public class TestFormatter : ICurrencyFormatter
 {
-    public string Format(decimal amount, string currencyCode) => $"${amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)}";
+    public string Format(decimal amount, string currencyCode) =>
+        $"${amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)}";
 }
 
 public class DirectMappingTests
@@ -175,7 +184,7 @@ public class DirectMappingTests
             Name = "Laptop",
             Price = 999.99m,
             Category = new Category { Name = "Electronics" },
-            LastUpdated = DateTime.UtcNow
+            LastUpdated = DateTime.UtcNow,
         };
 
         var dto = mapper.MapProduct(product);
@@ -225,7 +234,7 @@ public class DirectMappingTests
             Name = "Laptop",
             Price = 999.99m,
             Category = originalCategory,
-            LastUpdated = originalLastUpdated
+            LastUpdated = originalLastUpdated,
         };
 
         var update = new ProductUpdateDto("Updated Laptop", 1099.99m);

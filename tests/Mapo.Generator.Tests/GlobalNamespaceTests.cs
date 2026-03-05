@@ -11,7 +11,8 @@ public class GlobalNamespaceTests : MapoVerifier
     [Fact]
     public void Mapper_InGlobalNamespace_ShouldCompile()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 public class S { public int Id { get; set; } }
 public class T { public int Id { get; set; } }
@@ -23,7 +24,8 @@ public static partial class M { public static partial T Map(S s); }";
     [Fact]
     public void Mapper_InGlobalNamespace_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 public class S { public int Id { get; set; } }

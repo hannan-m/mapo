@@ -7,8 +7,12 @@ namespace Mapo.Generator.Emit;
 
 internal static class ObjectEmitter
 {
-    public static void Emit(CodeWriter cw, MethodMapping mapping, MapperInfo mapper,
-        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns)
+    public static void Emit(
+        CodeWriter cw,
+        MethodMapping mapping,
+        MapperInfo mapper,
+        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns
+    )
     {
         var paramsList = string.Join(", ", mapping.Parameters);
         var internalParams = mapper.UseReferenceTracking ? paramsList + ", MappingContext _context" : paramsList;
@@ -17,28 +21,41 @@ internal static class ObjectEmitter
         string accessibility = mapping.IsUserDeclared ? "public " : "internal ";
 
         cw.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]");
-        cw.AppendLine($"{accessibility}{(mapper.IsStatic ? "static " : "")}{partialKeyword}{(mapping.IsUpdateMapping ? "void" : mapping.TargetTypeDisplayString)} {mapping.MethodName}({paramsList})");
-        
+        cw.AppendLine(
+            $"{accessibility}{(mapper.IsStatic ? "static " : "")}{partialKeyword}{(mapping.IsUpdateMapping ? "void" : mapping.TargetTypeDisplayString)} {mapping.MethodName}({paramsList})"
+        );
+
         using (cw.Block())
         {
             if (mapper.UseReferenceTracking)
             {
-                cw.AppendLine($"{(mapping.IsUpdateMapping ? "" : "return ")}{mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))}, new MappingContext());");
+                cw.AppendLine(
+                    $"{(mapping.IsUpdateMapping ? "" : "return ")}{mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))}, new MappingContext());"
+                );
             }
             else
             {
-                cw.AppendLine($"{(mapping.IsUpdateMapping ? "" : "return ")}{mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))});");
+                cw.AppendLine(
+                    $"{(mapping.IsUpdateMapping ? "" : "return ")}{mapping.MethodName}Internal({string.Join(", ", mapping.Parameters.Select(p => p.Split(' ').Last()))});"
+                );
             }
         }
 
-        cw.AppendLine($"private {(mapper.IsStatic ? "static " : "")}{(mapping.IsUpdateMapping ? "void" : mapping.TargetTypeDisplayString)} {mapping.MethodName}Internal({internalParams})");
+        cw.AppendLine(
+            $"private {(mapper.IsStatic ? "static " : "")}{(mapping.IsUpdateMapping ? "void" : mapping.TargetTypeDisplayString)} {mapping.MethodName}Internal({internalParams})"
+        );
         using (cw.Block())
         {
             EmitInternalBody(cw, mapping, mapper, methodPatterns);
         }
     }
 
-    private static void EmitInternalBody(CodeWriter cw, MethodMapping mapping, MapperInfo mapper, List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns)
+    private static void EmitInternalBody(
+        CodeWriter cw,
+        MethodMapping mapping,
+        MapperInfo mapper,
+        List<(string MethodName, Regex GroupPattern, Regex CallPattern)> methodPatterns
+    )
     {
         if (mapping.IsUpdateMapping)
         {
@@ -46,7 +63,9 @@ internal static class ObjectEmitter
         }
         else
         {
-            cw.AppendLine($"if ({mapping.SourceName} == null) throw new ArgumentNullException(nameof({mapping.SourceName}));");
+            cw.AppendLine(
+                $"if ({mapping.SourceName} == null) throw new ArgumentNullException(nameof({mapping.SourceName}));"
+            );
         }
 
         if (mapping.DerivedMappings.Count > 0)
@@ -56,9 +75,12 @@ internal static class ObjectEmitter
             {
                 foreach (var derived in mapping.DerivedMappings)
                 {
-                    var derivedMethod = mapper.Mappings.FirstOrDefault(m =>
-                        m.SourceTypeDisplayString == derived.SourceTypeDisplayString &&
-                        m.TargetTypeDisplayString == derived.TargetTypeDisplayString)?.MethodName;
+                    var derivedMethod = mapper
+                        .Mappings.FirstOrDefault(m =>
+                            m.SourceTypeDisplayString == derived.SourceTypeDisplayString
+                            && m.TargetTypeDisplayString == derived.TargetTypeDisplayString
+                        )
+                        ?.MethodName;
 
                     if (derivedMethod != null)
                     {
@@ -83,7 +105,9 @@ internal static class ObjectEmitter
 
         if (mapper.UseReferenceTracking && !mapping.IsUpdateMapping)
         {
-            cw.AppendLine($"if (_context.TryGet<{mapping.TargetTypeDisplayString}>({mapping.SourceName}, out var _existing)) return _existing!;");
+            cw.AppendLine(
+                $"if (_context.TryGet<{mapping.TargetTypeDisplayString}>({mapping.SourceName}, out var _existing)) return _existing!;"
+            );
         }
 
         string targetName;
@@ -190,17 +214,24 @@ internal static class ObjectEmitter
     {
         switch (pm.MappingOrigin)
         {
-            case "Custom": return "// Custom mapping";
+            case "Custom":
+                return "// Custom mapping";
             case "Flattened":
                 if (pm.NavigationSegments != null && pm.NavigationSegments.Count > 1)
                     return $"// Flattened: {pm.TargetName} <- {string.Join(".", pm.NavigationSegments.Skip(1))}";
                 return $"// Flattened: {pm.SourceExpression}";
-            case "Injected": return "// Injected member";
-            case "Converter": return "// Converter applied";
-            case "EnumConversion": return "// Enum conversion";
-            case "NestedObject": return "// Nested object mapping";
-            case "Collection": return "// Collection mapping";
-            default: return $"// {pm.SourceExpression}";
+            case "Injected":
+                return "// Injected member";
+            case "Converter":
+                return "// Converter applied";
+            case "EnumConversion":
+                return "// Enum conversion";
+            case "NestedObject":
+                return "// Nested object mapping";
+            case "Collection":
+                return "// Collection mapping";
+            default:
+                return $"// {pm.SourceExpression}";
         }
     }
 }

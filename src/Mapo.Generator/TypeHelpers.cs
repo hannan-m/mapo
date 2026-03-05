@@ -22,9 +22,12 @@ internal static class TypeHelpers
     }
 
     public static bool IsCollection(ITypeSymbol t) =>
-        t is IArrayTypeSymbol ||
-        (t is INamedTypeSymbol named && named.IsGenericType &&
-         (named.Name == "IEnumerable" || named.AllInterfaces.Any(i => i.Name == "IEnumerable" && i.IsGenericType)));
+        t is IArrayTypeSymbol
+        || (
+            t is INamedTypeSymbol named
+            && named.IsGenericType
+            && (named.Name == "IEnumerable" || named.AllInterfaces.Any(i => i.Name == "IEnumerable" && i.IsGenericType))
+        );
 
     public static ITypeSymbol? GetItemType(ITypeSymbol t) =>
         t is IArrayTypeSymbol a ? a.ElementType : (t as INamedTypeSymbol)?.TypeArguments.FirstOrDefault();
@@ -34,11 +37,13 @@ internal static class TypeHelpers
 
     public static string CleanGenericName(ITypeSymbol type)
     {
-        if (type is IArrayTypeSymbol array) return CleanGenericName(array.ElementType) + "Array";
+        if (type is IArrayTypeSymbol array)
+            return CleanGenericName(array.ElementType) + "Array";
         if (type is INamedTypeSymbol named && named.IsGenericType)
         {
             var result = named.Name;
-            foreach (var arg in named.TypeArguments) result += CleanGenericName(arg);
+            foreach (var arg in named.TypeArguments)
+                result += CleanGenericName(arg);
             return result;
         }
         return type.Name;

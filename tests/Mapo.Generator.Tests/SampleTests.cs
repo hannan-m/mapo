@@ -9,7 +9,8 @@ public class SampleTests : MapoVerifier
     [Fact]
     public void EnterpriseSample_MapsValuesCorrectly()
     {
-        string source = @"
+        string source =
+            @"
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -13,7 +13,8 @@ public class EnumMappingTests : MapoVerifier
     [Fact]
     public void EnumMapping_UsesCorrectParameterName()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Color { Red, Green, Blue }
@@ -34,7 +35,8 @@ public class T { public ColorDto Color { get; set; } }
     [Fact]
     public void EnumMapping_AllCasesMatched()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Status { Active, Inactive, Pending }
@@ -56,7 +58,8 @@ public class T { public StatusDto Status { get; set; } }
     public void EnumMapping_PartialMatch_UnmatchedFallsToDefault()
     {
         // Source has a member that target doesn't — should fall to default arm
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Priority { Low, Medium, High, Critical }
@@ -78,7 +81,8 @@ public class T { public PriorityDto Priority { get; set; } }
     [Fact]
     public void EnumMapping_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -108,7 +112,8 @@ public static class TestRunner
     public void EnumMapping_CaseInsensitiveMatch()
     {
         // Enum members matched case-insensitively
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum Src { ACTIVE, INACTIVE }
@@ -128,7 +133,8 @@ public class T { public Tgt Status { get; set; } }
     [Fact]
     public void EnumMapping_MultipleEnumProperties()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -157,7 +163,8 @@ public static class TestRunner
     public void EnumMapping_SwitchExpressionUsesMethodParameter()
     {
         // Verify the generated switch expression uses the method's actual parameter name
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public enum E1 { A, B }

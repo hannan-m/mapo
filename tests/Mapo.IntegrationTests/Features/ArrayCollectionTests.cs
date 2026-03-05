@@ -37,7 +37,9 @@ public class ArticleDest
 public partial class ArrayCollectionMapper
 {
     public partial List<TagDest> MapTags(List<TagSource> tags);
+
     public partial TagDest MapTag(TagSource tag);
+
     public partial ArticleDest MapArticle(ArticleSource article);
 }
 
@@ -51,7 +53,7 @@ public class ArrayCollectionTests
         {
             new() { Label = "csharp", Priority = 1 },
             new() { Label = "dotnet", Priority = 2 },
-            new() { Label = "roslyn", Priority = 3 }
+            new() { Label = "roslyn", Priority = 3 },
         };
 
         var result = mapper.MapTags(tags);
@@ -87,11 +89,7 @@ public class ArrayCollectionTests
         var article = new ArticleSource
         {
             Title = "Intro to Mapo",
-            Tags =
-            [
-                new() { Label = "mapper", Priority = 1 },
-                new() { Label = "generator", Priority = 2 }
-            ]
+            Tags = [new() { Label = "mapper", Priority = 1 }, new() { Label = "generator", Priority = 2 }],
         };
 
         var dto = mapper.MapArticle(article);
@@ -106,7 +104,10 @@ public class ArrayCollectionTests
     public void SingleItemCollection_ShouldMapCorrectly()
     {
         var mapper = new ArrayCollectionMapper();
-        var tags = new List<TagSource> { new() { Label = "solo", Priority = 42 } };
+        var tags = new List<TagSource>
+        {
+            new() { Label = "solo", Priority = 42 },
+        };
 
         var result = mapper.MapTags(tags);
 

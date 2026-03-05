@@ -1,8 +1,8 @@
+using Mapo.Generator.Emit;
+using Mapo.Generator.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Mapo.Generator.Syntax;
-using Mapo.Generator.Emit;
 
 namespace Mapo.Cli;
 
@@ -26,19 +26,21 @@ class Program
         }
 
         Console.WriteLine($"🔍 Scanning for mappers in: {inputDir}");
-        
+
         // 1. Find all C# files
         var csharpFiles = Directory.GetFiles(inputDir, "*.cs", SearchOption.AllDirectories);
         var syntaxTrees = csharpFiles.Select(f => CSharpSyntaxTree.ParseText(File.ReadAllText(f))).ToList();
 
         // 2. Create Compilation (needed for Semantic Model)
-        var compilation = CSharpCompilation.Create("MapoTemp")
+        var compilation = CSharpCompilation
+            .Create("MapoTemp")
             .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(Mapo.Attributes.MapperAttribute).Assembly.Location))
             .AddSyntaxTrees(syntaxTrees);
 
         int count = 0;
-        if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
+        if (!Directory.Exists(outputDir))
+            Directory.CreateDirectory(outputDir);
 
         // 3. Process each tree
         foreach (var tree in syntaxTrees)
@@ -67,6 +69,6 @@ class Program
     }
 }
 
-// Minimal polyfill for the context if needed, but since we reference the generator, 
+// Minimal polyfill for the context if needed, but since we reference the generator,
 // we should check if GeneratorSyntaxContext can be instantiated easily.
 // Actually, GeneratorSyntaxContext is a struct in Microsoft.CodeAnalysis.

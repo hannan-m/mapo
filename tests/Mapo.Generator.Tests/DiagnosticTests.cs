@@ -1,5 +1,5 @@
-using Microsoft.CodeAnalysis;
 using FluentAssertions;
+using Microsoft.CodeAnalysis;
 using Xunit;
 
 namespace Mapo.Generator.Tests;
@@ -9,7 +9,8 @@ public class DiagnosticTests : MapoVerifier
     [Fact]
     public void StrictMode_MissingProperty_ReportsError()
     {
-        string source = "using Mapo.Attributes; namespace Test; public class S { public int Id { get; set; } } public class T { public int Id { get; set; } public string Name { get; set; } } [Mapper(StrictMode = true)] public partial class M { public partial T Map(S s); }";
+        string source =
+            "using Mapo.Attributes; namespace Test; public class S { public int Id { get; set; } } public class T { public int Id { get; set; } public string Name { get; set; } } [Mapper(StrictMode = true)] public partial class M { public partial T Map(S s); }";
         var result = RunGenerator(source);
         result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error).Should().BeTrue();
     }
@@ -17,7 +18,8 @@ public class DiagnosticTests : MapoVerifier
     [Fact]
     public void NonPartialClass_ReportsMAPO003()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -31,7 +33,8 @@ public class M { public T Map(S s) => null!; }";
     [Fact]
     public void NonStaticConfigure_ReportsMAPO004()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -49,7 +52,8 @@ public partial class M
     [Fact]
     public void EmptyTypes_ReportsMAPO005()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { }
@@ -63,7 +67,8 @@ public partial class M { public partial T Map(S s); }";
     [Fact]
     public void DuplicateMapping_ReportsMAPO006()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } public string Alt { get; set; } = """"; }
@@ -85,7 +90,8 @@ public partial class M
     [Fact]
     public void InvalidTargetProperty_ReportsMAPO007()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } }
@@ -106,7 +112,8 @@ public partial class M
     [Fact]
     public void NullableToNonNullable_ReportsMAPO009()
     {
-        string source = @"
+        string source =
+            @"
 #nullable enable
 using Mapo.Attributes;
 namespace Test;

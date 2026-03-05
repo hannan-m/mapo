@@ -9,7 +9,8 @@ public class NullableCoercionTests : MapoVerifier
     [Fact]
     public void NullableInt_ToInt_GeneratesCoercion()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int? Score { get; set; } }
@@ -25,7 +26,8 @@ public class T { public int Score { get; set; } }
     [Fact]
     public void NullableDateTime_ToDateTime_GeneratesCoercion()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -42,7 +44,8 @@ public class T { public DateTime Created { get; set; } }
     [Fact]
     public void NullableToNonNullable_WithExplicitConverter_ConverterWins()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int? Score { get; set; } }
@@ -65,7 +68,8 @@ public class T { public int Score { get; set; } }
     [Fact]
     public void NullableInt_Null_CoercesToDefault_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -92,7 +96,8 @@ public static class TestRunner
     [Fact]
     public void MAPO009_ReportedAsInfo()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int? Score { get; set; } }
@@ -108,7 +113,8 @@ public class T { public int Score { get; set; } }
     [Fact]
     public void NullableGuid_ToGuid_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

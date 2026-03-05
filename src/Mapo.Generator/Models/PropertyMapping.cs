@@ -11,7 +11,13 @@ public class CollectionLoopInfo : IEquatable<CollectionLoopInfo>
     public string TargetItemTypeDisplay { get; }
     public string CountMember { get; }
 
-    public CollectionLoopInfo(string sourceCollectionExpr, string? projectionBody, string itemMapperName, string targetItemTypeDisplay, string countMember)
+    public CollectionLoopInfo(
+        string sourceCollectionExpr,
+        string? projectionBody,
+        string itemMapperName,
+        string targetItemTypeDisplay,
+        string countMember
+    )
     {
         SourceCollectionExpr = sourceCollectionExpr;
         ProjectionBody = projectionBody;
@@ -22,7 +28,8 @@ public class CollectionLoopInfo : IEquatable<CollectionLoopInfo>
 
     public bool Equals(CollectionLoopInfo other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return SourceCollectionExpr == other.SourceCollectionExpr
             && ProjectionBody == other.ProjectionBody
             && ItemMapperName == other.ItemMapperName
@@ -57,13 +64,18 @@ public class PropertyMapping : IEquatable<PropertyMapping>
     public CollectionLoopInfo? CollectionLoop { get; }
     public string MappingOrigin { get; }
 
-    public PropertyMapping(string targetName, string sourceExpression,
-        bool targetIsValueType = false, bool targetIsString = false,
-        bool isInitOnly = false, bool isRequired = false,
+    public PropertyMapping(
+        string targetName,
+        string sourceExpression,
+        bool targetIsValueType = false,
+        bool targetIsString = false,
+        bool isInitOnly = false,
+        bool isRequired = false,
         bool requiresNullGuard = false,
         List<string>? navigationSegments = null,
         CollectionLoopInfo? collectionLoop = null,
-        string mappingOrigin = "Direct")
+        string mappingOrigin = "Direct"
+    )
     {
         TargetName = targetName;
         SourceExpression = sourceExpression;
@@ -79,7 +91,8 @@ public class PropertyMapping : IEquatable<PropertyMapping>
 
     public bool Equals(PropertyMapping other)
     {
-        if (other is null) return false;
+        if (other is null)
+            return false;
         return TargetName == other.TargetName
             && SourceExpression == other.SourceExpression
             && TargetIsValueType == other.TargetIsValueType
@@ -112,17 +125,22 @@ public class PropertyMapping : IEquatable<PropertyMapping>
 
     private static bool ListEquals(List<string>? a, List<string>? b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        if (a.Count != b.Count) return false;
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
         for (int i = 0; i < a.Count; i++)
-            if (a[i] != b[i]) return false;
+            if (a[i] != b[i])
+                return false;
         return true;
     }
 
     private static int ListHash(List<string>? list)
     {
-        if (list is null) return 0;
+        if (list is null)
+            return 0;
         int hash = 17;
         for (int i = 0; i < list.Count; i++)
             hash = hash * 31 + (list[i]?.GetHashCode() ?? 0);

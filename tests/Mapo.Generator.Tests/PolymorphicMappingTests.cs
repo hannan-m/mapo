@@ -14,7 +14,8 @@ public class PolymorphicMappingTests : MapoVerifier
     {
         // The derived mapper sets DogDto.Bark. The base mapping must NOT overwrite it
         // with base-type property expressions (which would reference the wrong variable).
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -47,7 +48,8 @@ public static class TestRunner
     [Fact]
     public void Polymorphic_MultipleDerived_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -92,7 +94,8 @@ public static class TestRunner
     [Fact]
     public void Polymorphic_GeneratesSwitch_WithCorrectCases()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public abstract class Animal { public string Name { get; set; } = """"; }
@@ -117,7 +120,8 @@ public static partial class M
     public void Polymorphic_AbstractBaseWithNoMatch_ReturnsNull()
     {
         // When the runtime type doesn't match any derived mapping, abstract base returns null
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;

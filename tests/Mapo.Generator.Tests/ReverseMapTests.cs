@@ -11,7 +11,8 @@ public class ReverseMapTests : MapoVerifier
     [Fact]
     public void ReverseMap_SameNameProperties_CompilesAndRuns()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 using System;
 namespace Test;
@@ -43,7 +44,8 @@ public static class TestRunner
     [Fact]
     public void ReverseMap_GeneratesBothDirections()
     {
-        string source = @"
+        string source =
+            @"
 using Mapo.Attributes;
 namespace Test;
 public class S { public int Id { get; set; } public string Name { get; set; } = """"; }

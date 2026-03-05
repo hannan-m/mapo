@@ -26,9 +26,9 @@ public class Organization
 public class OrganizationFlatDto
 {
     public string Name { get; set; } = "";
-    public string HeadquartersCity { get; set; } = "";          // 2-level
-    public string HeadquartersCountryName { get; set; } = "";   // 3-level
-    public string HeadquartersCountryCode { get; set; } = "";   // 3-level
+    public string HeadquartersCity { get; set; } = ""; // 2-level
+    public string HeadquartersCountryName { get; set; } = ""; // 3-level
+    public string HeadquartersCountryCode { get; set; } = ""; // 3-level
 }
 
 [Mapper]
@@ -48,8 +48,8 @@ public class MultiLevelFlatteningTests
             Headquarters = new GeoAddress
             {
                 City = "Berlin",
-                Country = new GeoCountry { Name = "Germany", Code = "DE" }
-            }
+                Country = new GeoCountry { Name = "Germany", Code = "DE" },
+            },
         };
 
         var dto = MultiLevelFlatMapper.Map(org);
@@ -69,8 +69,8 @@ public class MultiLevelFlatteningTests
             Headquarters = new GeoAddress
             {
                 City = "Tokyo",
-                Country = new GeoCountry { Name = "Japan", Code = "JP" }
-            }
+                Country = new GeoCountry { Name = "Japan", Code = "JP" },
+            },
         };
 
         var dto = MultiLevelFlatMapper.Map(org);
