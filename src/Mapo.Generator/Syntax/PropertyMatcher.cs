@@ -71,7 +71,7 @@ internal static class PropertyMatcher
                     expression = System.Text.RegularExpressions.Regex.Replace(
                         converter.Expression,
                         $@"\b{System.Text.RegularExpressions.Regex.Escape(converter.ParamName)}\b",
-                        $"({body})"
+                        $"({body.Replace("$", "$$")})"
                     );
                     mappingOrigin = "Converter";
                     return true;
@@ -231,7 +231,7 @@ internal static class PropertyMatcher
                 expression = System.Text.RegularExpressions.Regex.Replace(
                     gConverter.Expression,
                     $@"\b{System.Text.RegularExpressions.Regex.Escape(gConverter.ParamName)}\b",
-                    $"({sourceAccess})"
+                    $"({sourceAccess.Replace("$", "$$")})"
                 );
                 mappingOrigin = "Converter";
                 return true;
