@@ -74,7 +74,10 @@ public class MapoCodeFixProvider : CodeFixProvider
 
         // Extract property name from diagnostic message
         // Message format: "Property '{0}' in target type '{1}' is not mapped..."
-        var propertyName = diagnostic.GetMessage().Split('\'')[1];
+        var parts = diagnostic.GetMessage().Split('\'');
+        if (parts.Length < 2)
+            return;
+        var propertyName = parts[1];
 
         context.RegisterCodeFix(
             CodeAction.Create(
