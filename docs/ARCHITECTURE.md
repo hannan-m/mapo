@@ -32,7 +32,7 @@ src/
 │   ├── MapoGenerator.cs              # IIncrementalGenerator entry point
 │   │
 │   ├── Syntax/                       # Phase 2: Parsing
-│   │   ├── MapperParser.cs           # Top-level orchestrator (~700 lines)
+│   │   ├── MapperParser.cs           # Top-level orchestrator (~420 lines)
 │   │   ├── ConfigParser.cs           # Parses Configure() method chains
 │   │   ├── PropertyMatcher.cs        # Property matching, flattening, type coercion
 │   │   ├── MethodMappingFactory.cs   # Builds MethodMapping from type pairs
@@ -235,4 +235,4 @@ IDE code fixes are provided for MAPO001 (insert `.Map()` call) and MAPO003 (add 
 | `Mapo.Generator` | netstandard2.0 | Required by Roslyn analyzer/generator hosting |
 | `Mapo.Generator.CodeFixes` | netstandard2.0 | Required by IDE code fix hosting |
 | Roslyn dependency | 4.8.0 | Minimum version for incremental generator APIs |
-| Tests / Samples | net8.0 | Modern runtime for testing |
+| Tests / Samples | net10.0 | Modern runtime for testing |
