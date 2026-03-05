@@ -109,6 +109,14 @@ internal static class PropertyMatcher
                     {
                         var sItem = TypeHelpers.GetItemType(sPropCheck.Type);
                         var tItem = TypeHelpers.GetItemType(targetType);
+
+                        if (sItem != null && tItem != null && SymbolEqualityComparer.Default.Equals(sItem, tItem))
+                        {
+                            expression = body;
+                            mappingOrigin = "Custom";
+                            return true;
+                        }
+
                         if (
                             sItem != null
                             && tItem != null
@@ -309,6 +317,16 @@ internal static class PropertyMatcher
             {
                 var sItem = TypeHelpers.GetItemType(sourceProp.Type);
                 var tItem = TypeHelpers.GetItemType(targetType);
+
+                // Same element type, different container (e.g. List<string> → IReadOnlyList<string>):
+                // direct assignment — List<T> implements IReadOnlyList<T>
+                if (sItem != null && tItem != null && SymbolEqualityComparer.Default.Equals(sItem, tItem))
+                {
+                    expression = $"{sourceName}.{sourceProp.Name}";
+                    mappingOrigin = "Direct";
+                    return true;
+                }
+
                 if (
                     sItem != null
                     && tItem != null

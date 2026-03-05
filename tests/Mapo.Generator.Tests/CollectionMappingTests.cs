@@ -25,6 +25,77 @@ public class T { public List<TItem> Items { get; set; } = new(); }
     }
 
     [Fact]
+    public void SameElementType_DifferentContainer_DirectAssignment()
+    {
+        string source =
+            @"
+using Mapo.Attributes;
+using System.Collections.Generic;
+namespace Test;
+public class Source { public List<string> Tags { get; set; } = new(); }
+public class Target { public IReadOnlyList<string> Tags { get; set; } = new List<string>(); }
+[Mapper] public partial class M { public partial Target Map(Source s); }";
+        var result = RunGenerator(source);
+        var generated = result.Results[0].GeneratedSources[0].SourceText.ToString();
+        generated.Should().NotContain("MapstringTostring");
+        generated.Should().Contain("Tags = s.Tags");
+        AssertGeneratedCodeCompiles(source);
+    }
+
+    [Fact]
+    public void SameElementType_ListInt_ToIEnumerableInt()
+    {
+        string source =
+            @"
+using Mapo.Attributes;
+using System.Collections.Generic;
+using System;
+namespace Test;
+public class Source { public List<int> Ids { get; set; } = new(); }
+public class Target { public IEnumerable<int> Ids { get; set; } = new List<int>(); }
+[Mapper] public partial class M { public partial Target Map(Source s); }
+
+public static class TestRunner
+{
+    public static void Run()
+    {
+        var mapper = new M();
+        var result = mapper.Map(new Source { Ids = new List<int> { 1, 2, 3 } });
+        var list = new List<int>(result.Ids);
+        if (list.Count != 3) throw new Exception($""Count: {list.Count}"");
+        if (list[0] != 1) throw new Exception($""First: {list[0]}"");
+    }
+}";
+        AssertGeneratedCodeRuns(source);
+    }
+
+    [Fact]
+    public void SameElementType_ListString_ToIReadOnlyListString_Runs()
+    {
+        string source =
+            @"
+using Mapo.Attributes;
+using System.Collections.Generic;
+using System;
+namespace Test;
+public class Source { public List<string> Tags { get; set; } = new(); }
+public class Target { public IReadOnlyList<string> Tags { get; set; } = new List<string>(); }
+[Mapper] public partial class M { public partial Target Map(Source s); }
+
+public static class TestRunner
+{
+    public static void Run()
+    {
+        var mapper = new M();
+        var result = mapper.Map(new Source { Tags = new List<string> { ""a"", ""b"" } });
+        if (result.Tags.Count != 2) throw new Exception($""Count: {result.Tags.Count}"");
+        if (result.Tags[0] != ""a"") throw new Exception($""First: {result.Tags[0]}"");
+    }
+}";
+        AssertGeneratedCodeRuns(source);
+    }
+
+    [Fact]
     public void Collection_ArrayToList_GeneratesOptimizedLoop()
     {
         string source =
