@@ -80,8 +80,8 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Restore
-        run: dotnet restore Mapo.slnx
+      - name: Build
+        run: dotnet build Mapo.slnx --configuration Release
 
       - name: Pack Mapo
         run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts

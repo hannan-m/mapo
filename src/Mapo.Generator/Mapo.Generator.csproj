@@ -47,15 +47,18 @@
     />
   </ItemGroup>
 
-  <!-- Package the Generator DLL as an analyzer -->
-  <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
-
-  <!-- Package the Attributes DLL as a standard library reference -->
+  <!-- Package both Generator (as analyzer) and Attributes (as lib) via targets -->
   <PropertyGroup>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackMapoAttributes</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackMapoGenerator;PackMapoAttributes</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
+
+  <Target Name="PackMapoGenerator">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(TargetDir)$(AssemblyName).dll">
+        <PackagePath>analyzers/dotnet/cs/</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
 
   <Target Name="PackMapoAttributes" DependsOnTargets="ResolveProjectReferences">
     <ItemGroup>
