@@ -45,8 +45,11 @@ jobs:
       - name: Run integration tests
         run: dotnet test tests/Mapo.IntegrationTests/ --configuration Release --no-build
 
-      - name: Pack NuGet
+      - name: Pack Mapo (source generator)
         run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
+
+      - name: Pack Mapo.Cli (dotnet tool)
+        run: dotnet pack tools/Mapo.Cli/Mapo.Cli.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
 
       - name: Push to NuGet
         run: dotnet nuget push ./artifacts/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
