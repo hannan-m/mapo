@@ -98,15 +98,23 @@ internal static class CollectionEmitter
         string itemMapperName
     )
     {
-        cw.AppendLine(
-            $"if ({mapping.SourceName} == null) throw new ArgumentNullException(nameof({mapping.SourceName}));"
-        );
+        var srcType = mapping.SourceTypeDisplayString;
+        bool isNullableSource = srcType.EndsWith("?");
+
+        if (isNullableSource)
+        {
+            cw.AppendLine($"if ({mapping.SourceName} == null) return new List<{tItem}>();");
+        }
+        else
+        {
+            cw.AppendLine(
+                $"if ({mapping.SourceName} == null) throw new ArgumentNullException(nameof({mapping.SourceName}));"
+            );
+        }
 
         var memberPrefix = mapper.IsStatic ? "" : "this.";
         var callArgs = mapper.UseReferenceTracking ? "item, _context" : "item";
         var callMethod = mapper.UseReferenceTracking ? itemMapperName + "Internal" : itemMapperName;
-
-        var srcType = mapping.SourceTypeDisplayString;
 
         if (
             srcType.StartsWith("System.Collections.Generic.List<")

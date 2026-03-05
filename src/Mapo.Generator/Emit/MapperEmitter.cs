@@ -32,6 +32,10 @@ public static class MapperEmitter
         cw.AppendLine("using System.Threading;");
         cw.AppendLine("using System.Threading.Tasks;");
         cw.AppendLine("using Mapo.Attributes;");
+        foreach (var ns in mapper.UserUsings)
+        {
+            cw.AppendLine($"using {ns};");
+        }
         bool hasNamespace = !string.IsNullOrEmpty(mapper.Namespace) && mapper.Namespace != "<global namespace>";
         if (hasNamespace)
         {

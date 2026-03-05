@@ -62,17 +62,31 @@ internal static class PropertyMatcher
 
             if (sourcePropsForCheck.TryGetValue(cleanProp, out var sPropCheck))
             {
+                var sPropDisplay = sPropCheck.Type.ToDisplayString();
+                var sPropStripped = TypeHelpers.StripNullableAnnotation(sPropCheck.Type).ToDisplayString();
+                var tDisplay = targetType.ToDisplayString();
+                var tStripped = TypeHelpers.StripNullableAnnotation(targetType).ToDisplayString();
+
                 var converter = globalConverters.FirstOrDefault(c =>
-                    c.SourceTypeDisplayString == sPropCheck.Type.ToDisplayString()
-                    && c.TargetTypeDisplayString == targetType.ToDisplayString()
+                    (c.SourceTypeDisplayString == sPropDisplay || c.SourceTypeDisplayString == sPropStripped)
+                    && (c.TargetTypeDisplayString == tDisplay || c.TargetTypeDisplayString == tStripped)
                 );
                 if (converter != null)
                 {
-                    expression = System.Text.RegularExpressions.Regex.Replace(
+                    var converterExpr = System.Text.RegularExpressions.Regex.Replace(
                         converter.Expression,
                         $@"\b{System.Text.RegularExpressions.Regex.Escape(converter.ParamName)}\b",
                         $"({body.Replace("$", "$$")})"
                     );
+
+                    if (sPropDisplay != sPropStripped && converter.SourceTypeDisplayString == sPropStripped)
+                    {
+                        expression = $"({body} != null ? {converterExpr} : default)";
+                    }
+                    else
+                    {
+                        expression = converterExpr;
+                    }
                     mappingOrigin = "Converter";
                     return true;
                 }
@@ -221,18 +235,36 @@ internal static class PropertyMatcher
 
         if (sourceProps.TryGetValue(targetName, out var sourceProp))
         {
+            var sourceDisplay = sourceProp.Type.ToDisplayString();
+            var strippedSourceDisplay = TypeHelpers.StripNullableAnnotation(sourceProp.Type).ToDisplayString();
+            var targetDisplay = targetType.ToDisplayString();
+            var strippedTargetDisplay = TypeHelpers.StripNullableAnnotation(targetType).ToDisplayString();
+
             var gConverter = globalConverters.FirstOrDefault(c =>
-                c.SourceTypeDisplayString == sourceProp.Type.ToDisplayString()
-                && c.TargetTypeDisplayString == targetType.ToDisplayString()
+                (c.SourceTypeDisplayString == sourceDisplay || c.SourceTypeDisplayString == strippedSourceDisplay)
+                && (c.TargetTypeDisplayString == targetDisplay || c.TargetTypeDisplayString == strippedTargetDisplay)
             );
             if (gConverter != null)
             {
                 var sourceAccess = $"{sourceName}.{sourceProp.Name}";
-                expression = System.Text.RegularExpressions.Regex.Replace(
+                var converterExpr = System.Text.RegularExpressions.Regex.Replace(
                     gConverter.Expression,
                     $@"\b{System.Text.RegularExpressions.Regex.Escape(gConverter.ParamName)}\b",
                     $"({sourceAccess.Replace("$", "$$")})"
                 );
+
+                // Wrap with null check if source was nullable but converter expects non-nullable
+                if (
+                    sourceDisplay != strippedSourceDisplay
+                    && gConverter.SourceTypeDisplayString == strippedSourceDisplay
+                )
+                {
+                    expression = $"({sourceName}.{sourceProp.Name} != null ? {converterExpr} : default)";
+                }
+                else
+                {
+                    expression = converterExpr;
+                }
                 mappingOrigin = "Converter";
                 return true;
             }
@@ -242,7 +274,7 @@ internal static class PropertyMatcher
                 expression = $"{sourceName}.{sourceProp.Name}";
                 mappingOrigin = "Direct";
 
-                // Nullable mismatch detection for reference types
+                // Nullable reference type mismatch: string? → string
                 if (
                     !sourceProp.Type.IsValueType
                     && sourceProp.NullableAnnotation == NullableAnnotation.Annotated
@@ -250,6 +282,7 @@ internal static class PropertyMatcher
                 )
                 {
                     hasNullableMismatch = true;
+                    expression = $"{sourceName}.{sourceProp.Name}!";
                 }
 
                 return true;
@@ -313,6 +346,38 @@ internal static class PropertyMatcher
                     mappingOrigin = "Collection";
                     return true;
                 }
+
+                // Collection element conversion: List<string> <-> List<Enum>
+                if (sItem != null && tItem != null)
+                {
+                    string? elementExpr = null;
+
+                    if (sItem.SpecialType == SpecialType.System_String && tItem.TypeKind == TypeKind.Enum)
+                    {
+                        elementExpr = $"System.Enum.Parse<{tItem.ToDisplayString()}>(_item)";
+                    }
+                    else if (sItem.TypeKind == TypeKind.Enum && tItem.SpecialType == SpecialType.System_String)
+                    {
+                        elementExpr = "_item.ToString()";
+                    }
+
+                    if (elementExpr != null)
+                    {
+                        var sourceExpr = $"{sourceName}.{sourceProp.Name}";
+                        bool sourceIsNullable = sourceProp.NullableAnnotation == NullableAnnotation.Annotated;
+                        if (sourceIsNullable)
+                        {
+                            expression =
+                                $"({sourceExpr}?.Select(_item => {elementExpr}).ToList() ?? new System.Collections.Generic.List<{tItem.ToDisplayString()}>())";
+                        }
+                        else
+                        {
+                            expression = $"{sourceExpr}.Select(_item => {elementExpr}).ToList()";
+                        }
+                        mappingOrigin = "Collection";
+                        return true;
+                    }
+                }
             }
 
             if (sourceProp.Type.TypeKind == TypeKind.Enum && targetType.TypeKind == TypeKind.Enum)
@@ -333,7 +398,15 @@ internal static class PropertyMatcher
 
             if (sourceProp.Type.SpecialType == SpecialType.System_String && targetType.TypeKind == TypeKind.Enum)
             {
-                expression = $"System.Enum.Parse<{targetType.ToDisplayString()}>({sourceName}.{sourceProp.Name})";
+                if (sourceProp.NullableAnnotation == NullableAnnotation.Annotated)
+                {
+                    expression = $"System.Enum.Parse<{targetType.ToDisplayString()}>({sourceName}.{sourceProp.Name}!)";
+                    hasNullableMismatch = true;
+                }
+                else
+                {
+                    expression = $"System.Enum.Parse<{targetType.ToDisplayString()}>({sourceName}.{sourceProp.Name})";
+                }
                 mappingOrigin = "EnumConversion";
                 return true;
             }
@@ -345,17 +418,36 @@ internal static class PropertyMatcher
                 && targetType.SpecialType == SpecialType.None
             )
             {
-                discoveryList.Add(pair);
-                if (!nameMap.TryGetValue(pair, out mName))
+                var strippedSource = TypeHelpers.StripNullableAnnotation(sourceProp.Type);
+                var strippedTarget = TypeHelpers.StripNullableAnnotation(targetType);
+                var discoveryPair = (strippedSource, strippedTarget);
+                discoveryList.Add(discoveryPair);
+                if (!nameMap.TryGetValue(discoveryPair, out mName))
                 {
                     mName =
                         "Map"
-                        + TypeHelpers.CleanGenericName(sourceProp.Type)
+                        + TypeHelpers.CleanGenericName(strippedSource)
                         + "To"
-                        + TypeHelpers.CleanGenericName(targetType);
-                    nameMap[pair] = mName;
+                        + TypeHelpers.CleanGenericName(strippedTarget);
+                    nameMap[discoveryPair] = mName;
                 }
-                expression = $"{mName}({sourceName}.{sourceProp.Name})";
+
+                bool sourceIsNullable =
+                    sourceProp.NullableAnnotation == NullableAnnotation.Annotated
+                    || (
+                        sourceProp.Type is INamedTypeSymbol sNullable
+                        && sNullable.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+                    );
+
+                if (sourceIsNullable)
+                {
+                    expression =
+                        $"({sourceName}.{sourceProp.Name} != null ? {mName}({sourceName}.{sourceProp.Name}) : default)";
+                }
+                else
+                {
+                    expression = $"{mName}({sourceName}.{sourceProp.Name})";
+                }
                 mappingOrigin = "NestedObject";
                 return true;
             }

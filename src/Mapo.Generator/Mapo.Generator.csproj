@@ -6,7 +6,7 @@
 
     <!-- NuGet Packaging Properties -->
     <PackageId>Mapo</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Description>A high-performance, source-generated object mapper for .NET. Zero reflection, NativeAOT compatible.</Description>
     <Authors>Mapo Contributors</Authors>
     <PackageTags>mapper;source-generator;roslyn;mapping;object-mapping;aot</PackageTags>

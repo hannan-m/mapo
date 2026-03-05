@@ -8,11 +8,15 @@ namespace Mapo.Generator.Tests;
 
 public abstract class MapoVerifier
 {
+    private static readonly CSharpParseOptions ParseOptions = CSharpParseOptions.Default.WithLanguageVersion(
+        LanguageVersion.Latest
+    );
+
     protected Compilation CreateCompilation(string source)
     {
         return CSharpCompilation.Create(
             "compilation",
-            new[] { CSharpSyntaxTree.ParseText(source) },
+            new[] { CSharpSyntaxTree.ParseText(source, ParseOptions) },
             new[]
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
@@ -23,7 +27,10 @@ public abstract class MapoVerifier
                 MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location),
                 MetadataReference.CreateFromFile(Assembly.Load("System.Linq.Expressions").Location),
             },
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            new CSharpCompilationOptions(
+                OutputKind.DynamicallyLinkedLibrary,
+                nullableContextOptions: NullableContextOptions.Enable
+            )
         );
     }
 
@@ -31,7 +38,10 @@ public abstract class MapoVerifier
     {
         var compilation = CreateCompilation(source);
         var generator = new MapoGenerator();
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(
+            generators: new[] { generator.AsSourceGenerator() },
+            parseOptions: ParseOptions
+        );
         return driver.RunGenerators(compilation).GetRunResult();
     }
 
@@ -39,7 +49,10 @@ public abstract class MapoVerifier
     {
         var compilation = CreateCompilation(source);
         var generator = new MapoGenerator();
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(
+            generators: new[] { generator.AsSourceGenerator() },
+            parseOptions: ParseOptions
+        );
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
 
         var diagnostics = outputCompilation
@@ -58,7 +71,10 @@ public abstract class MapoVerifier
     {
         var compilation = CreateCompilation(source);
         var generator = new MapoGenerator();
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(
+            generators: new[] { generator.AsSourceGenerator() },
+            parseOptions: ParseOptions
+        );
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
 
         var diagnostics = outputCompilation

@@ -53,4 +53,38 @@ internal static class TypeHelpers
     {
         return name.Replace(".", "").Replace("<", "").Replace(">", "").Replace(",", "").Replace(" ", "");
     }
+
+    /// <summary>
+    /// Strips nullable annotation from a type symbol.
+    /// For nullable reference types (e.g. string?): returns the non-annotated form.
+    /// For Nullable&lt;T&gt; value types (e.g. int?): returns the underlying T.
+    /// For non-nullable types: returns as-is.
+    /// </summary>
+    public static ITypeSymbol StripNullableAnnotation(ITypeSymbol type)
+    {
+        if (
+            type is INamedTypeSymbol named
+            && named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+            && named.TypeArguments.Length == 1
+        )
+        {
+            return named.TypeArguments[0];
+        }
+
+        if (!type.IsValueType && type.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            return type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+        }
+
+        return type;
+    }
+
+    /// <summary>
+    /// Returns a display string suitable for use in `new T()` expressions.
+    /// Strips nullable reference type annotations.
+    /// </summary>
+    public static string ToConstructableDisplayString(ITypeSymbol type)
+    {
+        return StripNullableAnnotation(type).ToDisplayString();
+    }
 }

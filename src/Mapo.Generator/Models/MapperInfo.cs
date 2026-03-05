@@ -90,6 +90,7 @@ public class MapperInfo : IEquatable<MapperInfo>
     public List<MethodMapping> Mappings { get; }
     public List<InjectedMember> InjectedMembers { get; }
     public List<GlobalConverter> GlobalConverters { get; }
+    public List<string> UserUsings { get; }
 
     public MapperInfo(
         string @namespace,
@@ -99,7 +100,8 @@ public class MapperInfo : IEquatable<MapperInfo>
         bool useReferenceTracking,
         List<MethodMapping> mappings,
         List<InjectedMember> injectedMembers,
-        List<GlobalConverter> globalConverters
+        List<GlobalConverter> globalConverters,
+        List<string>? userUsings = null
     )
     {
         Namespace = @namespace;
@@ -110,6 +112,7 @@ public class MapperInfo : IEquatable<MapperInfo>
         Mappings = mappings;
         InjectedMembers = injectedMembers;
         GlobalConverters = globalConverters;
+        UserUsings = userUsings ?? new List<string>();
     }
 
     public bool Equals(MapperInfo other)
@@ -123,7 +126,8 @@ public class MapperInfo : IEquatable<MapperInfo>
             && UseReferenceTracking == other.UseReferenceTracking
             && ListEquals(InjectedMembers, other.InjectedMembers)
             && ListEquals(GlobalConverters, other.GlobalConverters)
-            && MappingListEquals(Mappings, other.Mappings);
+            && MappingListEquals(Mappings, other.Mappings)
+            && StringListEquals(UserUsings, other.UserUsings);
     }
 
     public override bool Equals(object obj) => Equals(obj as MapperInfo);
@@ -139,6 +143,7 @@ public class MapperInfo : IEquatable<MapperInfo>
         hash = hash * 31 + ListHash(Mappings);
         hash = hash * 31 + ListHash(InjectedMembers);
         hash = hash * 31 + ListHash(GlobalConverters);
+        hash = hash * 31 + StringListHash(UserUsings);
         return hash;
     }
 
@@ -166,6 +171,30 @@ public class MapperInfo : IEquatable<MapperInfo>
             if (!a[i].Equals(b[i]))
                 return false;
         return true;
+    }
+
+    private static bool StringListEquals(List<string>? a, List<string>? b)
+    {
+        if (a is null && b is null)
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.Count != b.Count)
+            return false;
+        for (int i = 0; i < a.Count; i++)
+            if (a[i] != b[i])
+                return false;
+        return true;
+    }
+
+    private static int StringListHash(List<string>? list)
+    {
+        if (list is null)
+            return 0;
+        int hash = 17;
+        for (int i = 0; i < list.Count; i++)
+            hash = hash * 31 + (list[i]?.GetHashCode() ?? 0);
+        return hash;
     }
 
     private static bool MappingListEquals(List<MethodMapping> a, List<MethodMapping> b)

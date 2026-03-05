@@ -169,6 +169,8 @@ public static class MapperParser
         var nameMap = new Dictionary<(ITypeSymbol, ITypeSymbol), string>(new TypePairComparer());
         var discoveryQueue = new Queue<(ITypeSymbol Source, ITypeSymbol Target, string Name, bool IsUserDeclared)>();
         var queuedPairs = new HashSet<(ITypeSymbol, ITypeSymbol)>(new TypePairComparer());
+        // Track parent chain for cycle detection (maps child → parent that discovered it)
+        var parentMap = new Dictionary<(ITypeSymbol, ITypeSymbol), (ITypeSymbol, ITypeSymbol)?>(new TypePairComparer());
 
         // 1. Initial Pass: Register all user-declared partial methods
         foreach (var method in partialMethodNodes)
@@ -187,6 +189,7 @@ public static class MapperParser
 
             var key = (sourceType, targetType);
             nameMap[key] = methodSymbol.Name;
+            parentMap[key] = null; // root node, no parent
             discoveryQueue.Enqueue((sourceType, targetType, methodSymbol.Name, true));
             queuedPairs.Add(key);
         }
@@ -288,6 +291,7 @@ public static class MapperParser
                 }
             }
 
+            var currentPair = (sourceType, targetType);
             foreach (var discovered in discoveryList)
             {
                 if (queuedPairs.Add(discovered))
@@ -301,6 +305,7 @@ public static class MapperParser
                             + TypeHelpers.CleanGenericName(discovered.Item2)
                         );
                     nameMap[discovered] = autoName;
+                    parentMap[discovered] = currentPair;
                     discoveryQueue.Enqueue((discovered.Item1, discovered.Item2, autoName, false));
                 }
                 else if (
@@ -311,18 +316,37 @@ public static class MapperParser
                     && !TypeHelpers.IsCollection(discovered.Item2)
                 )
                 {
-                    // MAPO010: The re-discovered pair was already fully processed,
-                    // meaning there's a cycle in the type graph.
-                    // Exclude collection mappings — they're wrapper re-discoveries, not cycles.
-                    diagnostics.Add(
-                        Diagnostic.Create(
-                            DiagnosticDescriptors.CircularReferenceWithoutTracking,
-                            partialSymbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLocation()
-                                ?? Location.None,
-                            sourceType.ToDisplayString(),
-                            targetType.ToDisplayString()
-                        )
-                    );
+                    // Check for actual cycle by walking the parent chain
+                    var comparer = new TypePairComparer();
+                    bool isCycle = false;
+                    var ancestor = currentPair;
+                    var visited = new HashSet<(ITypeSymbol, ITypeSymbol)>(comparer);
+                    while (true)
+                    {
+                        if (!visited.Add(ancestor))
+                            break; // prevent infinite loop in parent chain
+                        if (comparer.Equals(ancestor, discovered))
+                        {
+                            isCycle = true;
+                            break;
+                        }
+                        if (!parentMap.TryGetValue(ancestor, out var parent) || parent == null)
+                            break;
+                        ancestor = parent.Value;
+                    }
+
+                    if (isCycle)
+                    {
+                        diagnostics.Add(
+                            Diagnostic.Create(
+                                DiagnosticDescriptors.CircularReferenceWithoutTracking,
+                                partialSymbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLocation()
+                                    ?? Location.None,
+                                sourceType.ToDisplayString(),
+                                targetType.ToDisplayString()
+                            )
+                        );
+                    }
                 }
             }
 
@@ -386,6 +410,21 @@ public static class MapperParser
             );
         }
 
+        // Collect user using directives from the source file for generated code
+        var userUsings = classDeclaration
+            .SyntaxTree.GetRoot(ct)
+            .DescendantNodes()
+            .OfType<UsingDirectiveSyntax>()
+            .Where(u => u.Name != null)
+            .Select(u => u.Name!.ToString())
+            .Where(ns =>
+                !ns.StartsWith("System")
+                && ns != "Mapo.Attributes"
+                && ns != classSymbol.ContainingNamespace.ToDisplayString()
+            )
+            .Distinct()
+            .ToList();
+
         var mapper = new MapperInfo(
             classSymbol.ContainingNamespace.ToDisplayString(),
             classSymbol.Name,
@@ -394,7 +433,8 @@ public static class MapperParser
             useReferenceTracking,
             resultMappings,
             injectedMembers,
-            globalConverters
+            globalConverters,
+            userUsings
         );
         return new ParseResult(mapper, diagnostics);
     }

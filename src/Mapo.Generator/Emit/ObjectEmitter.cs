@@ -152,9 +152,12 @@ internal static class ObjectEmitter
                 }
             }
 
+            // Strip nullable annotation for new expressions (GeoCoordinates? -> GeoCoordinates)
+            var constructorType = mapping.TargetTypeDisplayString.TrimEnd('?');
+
             if (initOnlyMappings.Count > 0)
             {
-                cw.AppendLine($"var {targetName} = new {mapping.TargetTypeDisplayString}({ctorArgs})");
+                cw.AppendLine($"var {targetName} = new {constructorType}({ctorArgs})");
                 cw.AppendLine("{");
                 cw.Indent();
                 foreach (var pm in initOnlyMappings)
@@ -175,7 +178,7 @@ internal static class ObjectEmitter
             }
             else
             {
-                cw.AppendLine($"var {targetName} = new {mapping.TargetTypeDisplayString}({ctorArgs});");
+                cw.AppendLine($"var {targetName} = new {constructorType}({ctorArgs});");
             }
 
             if (mapper.UseReferenceTracking)
