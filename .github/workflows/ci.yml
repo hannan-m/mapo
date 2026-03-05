@@ -1,8 +1,9 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches: [main]
+    tags: ["v*.*.*"]
   pull_request:
     branches: [main]
 
@@ -10,54 +11,47 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   format:
-    name: Check Formatting
+    name: Format
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+      - run: dotnet tool restore
+      - run: dotnet csharpier check .
 
-      - name: Restore tools
-        run: dotnet tool restore
-
-      - name: Check formatting
-        run: dotnet csharpier check .
-
-  build-and-test:
+  build:
     name: Build & Test
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
           restore-keys: nuget-${{ runner.os }}-
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore Mapo.slnx
 
-      - name: Build solution
+      - name: Build
         run: dotnet build Mapo.slnx --configuration Release --no-restore
 
-      - name: Run unit tests
+      - name: Unit tests
         run: dotnet test tests/Mapo.Generator.Tests/ --configuration Release --no-build --logger "trx;LogFileName=unit-tests.trx"
 
-      - name: Run integration tests
+      - name: Integration tests
         run: dotnet test tests/Mapo.IntegrationTests/ --configuration Release --no-build --logger "trx;LogFileName=integration-tests.trx"
 
       - name: Upload test results
@@ -68,5 +62,39 @@ jobs:
           path: "**/TestResults/*.trx"
           retention-days: 7
 
-      - name: Build benchmarks (compile verification)
-        run: dotnet build samples/Mapo.Benchmarks/ --configuration Release --no-restore
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [format, build]
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Extract version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Restore
+        run: dotnet restore Mapo.slnx
+
+      - name: Pack Mapo
+        run: dotnet pack src/Mapo.Generator/Mapo.Generator.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
+
+      - name: Pack Mapo.Cli
+        run: dotnet pack tools/Mapo.Cli/Mapo.Cli.csproj -c Release -p:PackageVersion=${{ env.VERSION }} -o ./artifacts
+
+      - name: Push to NuGet
+        run: dotnet nuget push ./artifacts/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ env.VERSION }}
+          files: ./artifacts/*.nupkg
+          generate_release_notes: true
