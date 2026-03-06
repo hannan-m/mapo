@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-03-06
+
+### Fixed
+- **Nullable same-element-type collections** — `List<string>?` → `List<string>`, `List<string>?` → `IReadOnlyList<string>`, and custom-mapped same-element collections now emit `?? new List<T>()` instead of null-forgiving `!`, eliminating CS8601 warnings and runtime null propagation
+
+### Added
+- 23 new edge case and unhappy path tests covering: `[MapFrom]` with non-existent/conflicting properties, MAPO011 strict mode diagnostics, enum partial matches and invalid string parsing, constructor fallback, null source inputs, flattening with null intermediates, update mapping with ignored properties, converter with nullable null values, mixed creation+update mappers, zero/empty value mapping, nullable value types, null collection elements, and empty collections
+
+### Changed
+- Test count: 227 unit tests (was 198), 70 integration tests
+
 ## [1.1.0] - 2026-03-06
 
 ### Added
