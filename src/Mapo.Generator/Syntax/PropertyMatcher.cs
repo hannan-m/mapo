@@ -112,7 +112,19 @@ internal static class PropertyMatcher
 
                         if (sItem != null && tItem != null && SymbolEqualityComparer.Default.Equals(sItem, tItem))
                         {
-                            expression = body;
+                            // Nullable source → non-nullable target: coalesce with empty list
+                            if (
+                                sPropCheck.NullableAnnotation == NullableAnnotation.Annotated
+                                && targetType.NullableAnnotation != NullableAnnotation.Annotated
+                            )
+                            {
+                                expression =
+                                    $"({body} ?? new System.Collections.Generic.List<{sItem.ToDisplayString()}>())";
+                            }
+                            else
+                            {
+                                expression = body;
+                            }
                             mappingOrigin = "Custom";
                             return true;
                         }
@@ -282,7 +294,7 @@ internal static class PropertyMatcher
                 expression = $"{sourceName}.{sourceProp.Name}";
                 mappingOrigin = "Direct";
 
-                // Nullable reference type mismatch: string? → string
+                // Nullable reference type mismatch: string? → string, List<T>? → List<T>
                 if (
                     !sourceProp.Type.IsValueType
                     && sourceProp.NullableAnnotation == NullableAnnotation.Annotated
@@ -290,7 +302,24 @@ internal static class PropertyMatcher
                 )
                 {
                     hasNullableMismatch = true;
-                    expression = $"{sourceName}.{sourceProp.Name}!";
+                    // Nullable collection → non-nullable: coalesce with empty list
+                    if (TypeHelpers.IsCollection(sourceProp.Type))
+                    {
+                        var itemType = TypeHelpers.GetItemType(sourceProp.Type);
+                        if (itemType != null)
+                        {
+                            expression =
+                                $"({sourceName}.{sourceProp.Name} ?? new System.Collections.Generic.List<{itemType.ToDisplayString()}>())";
+                        }
+                        else
+                        {
+                            expression = $"{sourceName}.{sourceProp.Name}!";
+                        }
+                    }
+                    else
+                    {
+                        expression = $"{sourceName}.{sourceProp.Name}!";
+                    }
                 }
 
                 return true;
@@ -322,7 +351,20 @@ internal static class PropertyMatcher
                 // direct assignment — List<T> implements IReadOnlyList<T>
                 if (sItem != null && tItem != null && SymbolEqualityComparer.Default.Equals(sItem, tItem))
                 {
-                    expression = $"{sourceName}.{sourceProp.Name}";
+                    var sourceExpr = $"{sourceName}.{sourceProp.Name}";
+                    // Nullable source → non-nullable target: coalesce with empty list
+                    if (
+                        sourceProp.NullableAnnotation == NullableAnnotation.Annotated
+                        && targetType.NullableAnnotation != NullableAnnotation.Annotated
+                    )
+                    {
+                        expression =
+                            $"({sourceExpr} ?? new System.Collections.Generic.List<{sItem.ToDisplayString()}>())";
+                    }
+                    else
+                    {
+                        expression = sourceExpr;
+                    }
                     mappingOrigin = "Direct";
                     return true;
                 }

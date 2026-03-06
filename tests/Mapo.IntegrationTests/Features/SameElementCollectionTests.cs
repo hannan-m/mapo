@@ -86,8 +86,9 @@ public class SameElementCollectionTests
                 OptionalLabels = null,
             }
         );
-        // Direct assignment: nullable source stays null (no empty-list wrapping for same-element-type)
-        withoutLabels.OptionalLabels.Should().BeNull();
+        // Nullable source coalesces to empty list for non-nullable target
+        withoutLabels.OptionalLabels.Should().NotBeNull();
+        withoutLabels.OptionalLabels.Should().BeEmpty();
     }
 
     [Fact]

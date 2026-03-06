@@ -110,12 +110,13 @@ public class NullableReferenceTests
     }
 
     [Fact]
-    public void NullableCollection_WhenNull_AssignsNull()
+    public void NullableCollection_WhenNull_ReturnsEmpty()
     {
         var result = NullableRefMapper.MapFlat(new NullableRefSource { FirstName = "X", Tags = null });
 
-        // Direct assignment for same-element-type: null source stays null
-        result.Tags.Should().BeNull();
+        // Nullable source coalesces to empty list for non-nullable target
+        result.Tags.Should().NotBeNull();
+        result.Tags.Should().BeEmpty();
     }
 
     [Fact]
